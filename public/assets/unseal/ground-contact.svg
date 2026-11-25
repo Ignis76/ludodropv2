@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="contact" x="-3%" y="-3%" width="106%" height="106%" primitiveUnits="objectBoundingBox" color-interpolation-filters="sRGB">
+      <!-- The lower silhouette includes the feet and the soft shadow captured with each pose. -->
+      <feGaussianBlur in="SourceAlpha" stdDeviation=".002 .003" result="edge"/>
+      <feOffset in="edge" dx=".002" dy=".0035" result="contactAlpha"/>
+      <feFlood flood-color="#192934" flood-opacity=".57"/>
+      <feComposite in2="contactAlpha" operator="in" x="-.03" y=".52" width="1.06" height=".51"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+</svg>

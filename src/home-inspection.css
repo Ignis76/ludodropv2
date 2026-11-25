@@ -1,0 +1,75 @@
+.home-inspection {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.home-inspection-surface {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: none;
+  color: inherit;
+  cursor: grab;
+  touch-action: pan-y pinch-zoom;
+  container-type: size;
+  user-select: none;
+}
+.home-inspection-surface:active { cursor: grabbing; }
+.home-inspection[data-mode="unavailable"] .home-inspection-surface { cursor: pointer; }
+.home-inspection-frame {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(100cqw, 145.4545cqh);
+  aspect-ratio: 16 / 11;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.home-inspection .home-inspection-frame :is(img, canvas) {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.home-inspection-frame canvas { opacity:0; }
+.home-inspection[data-mode="live"] .home-inspection-frame canvas { opacity:1; }
+.home-inspection[data-mode="live"] .home-inspection-frame img { opacity:0; }
+@media(prefers-reduced-motion:no-preference) {
+  .home-inspection-frame :is(img,canvas) { transition:opacity .16s ease; }
+  .home-orbit .orbit-loading { animation:spin .9s linear infinite; }
+}
+.home-orbit {
+  position: absolute;
+  right: 6%;
+  bottom: 6%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 0 8px;
+  border: 1px solid #b7b4a95c;
+  border-radius: 3px;
+  color: #eee9db;
+  background: #171918d9;
+  font: 650 12px/1 var(--display, sans-serif);
+}
+.home-orbit:hover, .home-orbit:focus-visible { color: #ffd08b; border-color: currentColor; }
+.home-inspection[data-mode="loading"] .home-orbit { cursor: progress; }
+.home-orbit:focus-visible { outline: 2px solid #ffcb77; outline-offset: -2px; }
+.home-inspection-surface:focus-visible { outline: none; }
+.home-inspection-surface:focus-visible .home-inspection-frame::after {
+  content: '';
+  position: absolute;
+  inset: 4% 10%;
+  border: 2px solid #ffcb77;
+  border-radius: 3px;
+}
+@media (max-width: 600px) {
+  .home-orbit { right: 12%; min-height: 34px; }
+}

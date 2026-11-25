@@ -1,0 +1,22 @@
+{
+  "source": "https://api.skinport.com/v1/items?app_id=730&currency=RUB",
+  "timestamp": "2026-11-20T18:35:13Z",
+  "currency": "RUB",
+  "items": [
+    {
+      "market_hash_name": "Sticker | Sneaky Beaky Dept. (Holo)",
+      "price": 72.09,
+      "volume": 15
+    },
+    {
+      "market_hash_name": "Sticker | Poorly Drawn Leet Crew (Holo)",
+      "price": 75.79,
+      "volume": 12
+    },
+    {
+      "market_hash_name": "Sticker | Poorly Drawn IDF (Holo)",
+      "price": 61.93,
+      "volume": 13
+    }
+  ]
+}

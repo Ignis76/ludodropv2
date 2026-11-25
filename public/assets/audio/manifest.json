@@ -1,0 +1,65 @@
+[
+  {
+    "file": "tick.wav",
+    "source": "sounds/ui/csgo_ui_crate_item_scroll.vsnd_c",
+    "duration": 0.58254,
+    "sampleRate": 44100,
+    "channels": 2,
+    "bytes": 102804,
+    "pcmSha256": "15c59a0a725ca94c3410338a83546f6cec7895d8bf9bcd72560e82f9202ab02a"
+  },
+  {
+    "file": "unlock.wav",
+    "source": "sounds/ui/panorama/case_unlock_immediate_01.vsnd_c",
+    "duration": 0.456893,
+    "sampleRate": 44100,
+    "channels": 2,
+    "bytes": 80640,
+    "pcmSha256": "c99990c6a93d9e806a4dc27efda3d704c0d72abebd1155d0394e7b9ea914403b"
+  },
+  {
+    "file": "unlock-full.wav",
+    "source": "sounds/ui/panorama/case_unlock_01.vsnd_c",
+    "duration": 3.773175,
+    "sampleRate": 44100,
+    "channels": 2,
+    "bytes": 665632,
+    "pcmSha256": "e1d6035dac05943d24817a2fc08b59d830e882bb7e84b8e560a617385568ddcc"
+  },
+  {
+    "file": "reveal.wav",
+    "source": "sounds/ui/panorama/case_reveal_rare_01.vsnd_c",
+    "duration": 3.925646,
+    "sampleRate": 44100,
+    "channels": 2,
+    "bytes": 692528,
+    "pcmSha256": "c8c57d8b5d08bee4db1b2ceb117a24921d40f874b1d04ef159b4fbf6db374b4a"
+  },
+  {
+    "file": "reveal-purple.wav",
+    "source": "sounds/ui/panorama/case_reveal_mythical_01.vsnd_c",
+    "duration": 3.722245,
+    "sampleRate": 44100,
+    "channels": 2,
+    "bytes": 656648,
+    "pcmSha256": "0b5fb449a96844fbc9087cb1166bf72d6670245c8544c4019ad5a071889777dc"
+  },
+  {
+    "file": "reveal-pink.wav",
+    "source": "sounds/ui/panorama/case_reveal_legendary_01.vsnd_c",
+    "duration": 4.318889,
+    "sampleRate": 44100,
+    "channels": 2,
+    "bytes": 761896,
+    "pcmSha256": "6ebdcb13a4e6960cfb8b14856f0fddc9f3959854abceb4d8dcce4d6016a036d2"
+  },
+  {
+    "file": "rare.wav",
+    "source": "sounds/ui/panorama/case_reveal_ancient_01.vsnd_c",
+    "duration": 5.367052,
+    "sampleRate": 44100,
+    "channels": 2,
+    "bytes": 946792,
+    "pcmSha256": "cb0c6d95f3ebce9c09980bd967b02c016723873bbf624fb3f14ffed1f81b5c5c"
+  }
+]

@@ -1,0 +1,171 @@
+/* The shared clear stage holds every silhouette at the same optical baseline. */
+.container-card {
+  --stage-light: color-mix(in srgb, var(--tile-color) 46%, #bcb0c2);
+  --stage-bounce: color-mix(in srgb, var(--tile-accent, var(--tile-color)) 30%, #ccb8bc);
+  container: case-card / inline-size;
+  position: relative;
+  min-width: 0;
+  color: #faf7f5;
+  font-family: Inter, Onest, sans-serif;
+}
+.container-card .locker-product {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  appearance: none;
+  text-align: left;
+  border: 1px solid #d7c9d345;
+  border-radius: 17px;
+  background:
+    linear-gradient(146deg,#f3e9f41d,#b4a7be09 30%,transparent 65%),
+    linear-gradient(160deg,#332e40d4,#25212ed9 70%,#39313fd1);
+  box-shadow: inset 1px 1px 0 #fff5f52d, inset -1px -1px 0 #e1ccd51c, 0 4px 12px #120d1945;
+  color: inherit;
+  cursor: pointer;
+}
+/* A static bevel keeps the surface clear without a per-card scene blur. */
+.container-card .locker-product::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(131deg,#fff7f15c,transparent 26%,#eee1e70a 49%,transparent 72%,#ecdae44a);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+.container-card .locker-product:is(:hover,:focus-visible) { border-color: #eed4bd9c; box-shadow: inset 1px 1px 0 #fff6ec4a, 0 7px 17px #0d091666; }
+.container-card .locker-image {
+  position: relative;
+  isolation: isolate;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1.66;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 48% 99%,color-mix(in srgb, var(--stage-light) 39%, transparent),transparent 66%),
+    radial-gradient(ellipse at 93% 8%,color-mix(in srgb, var(--stage-bounce) 24%, transparent),transparent 55%),
+    linear-gradient(135deg,#b5a4bd0f,transparent 50%,#251b2c1b);
+}
+.container-card .locker-image::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  inset: auto 1% 0;
+  height: 21%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center 44%,color-mix(in srgb,var(--stage-light) 49%,transparent),transparent 67%);
+}
+.container-card .locker-image::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  inset: auto 17% 8.5%;
+  height: 11%;
+  background: radial-gradient(ellipse,#070c1bd9,#0b102176 35%,transparent 72%);
+}
+.container-card .locker-case {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  filter: drop-shadow(1px 3px 2px #060a2044);
+  -webkit-box-reflect: below -27% linear-gradient(to top,#0007 9%,transparent 24%);
+}
+.container-card .locker-case[data-original='raw'] { inset: 11% 9% 13.5%; width: 82%; height: 75.5%; object-fit: contain; object-position: center bottom; }
+.container-card .locker-plate {
+  display: grid;
+  grid-template-columns: minmax(0,1fr);
+  grid-template-rows: minmax(0,1fr) 27px;
+  align-items: start;
+  width: 100%;
+  min-width: 0;
+  height: 72px;
+  padding: 4px 11px 6px;
+  background: linear-gradient(160deg,#28232fa9,#221e2ac6 60%,#39303db3);
+}
+.container-card .locker-name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  min-width: 0;
+  margin: 0;
+  color: #faf7f5;
+  font: 600 clamp(15px,7cqi,18px)/1.2 Inter, Onest, sans-serif;
+  letter-spacing: -.034em;
+}
+.container-card .locker-price, .container-card .locker-price .coin {
+  display: inline-flex; align-items: center; justify-content: flex-end; gap: 4px;
+  min-height: 19px; margin: 0; padding: 0;
+  color: #ffe3c9;
+  font: 570 clamp(13px,6.4cqi,16px)/1.3 Inter, Onest, sans-serif;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  letter-spacing: -.028em;
+}
+.container-card .locker-price .coin svg { width: 13px; height: 13px; color: #f2bc91; }
+.container-card .locker-price {
+  justify-self: start; align-self: end; justify-content: center; width: 75px; min-height: 26px;
+  padding: 1px 6px; border: 1px solid #e3b89561; border-radius: 18px;
+  background: linear-gradient(165deg,#ffe0c323,transparent 57%,#efc3a010),#41312dcc;
+  box-shadow: inset 0 1px 0 #fff1e31f;
+}
+.container-card .locker-heart {
+  position: absolute;
+  bottom: 7px; left: 94px; z-index: 5;
+  display: grid;
+  place-items: center;
+  width: 27px; height: 27px; min-width: 0; min-height: 0;
+  padding: 0;
+  color: #f6f0f1;
+  border: 1px solid #d5cad34f;
+  border-radius: 50%;
+  background: linear-gradient(145deg,#e8dce72b,transparent 55%),#302b39c9;
+  box-shadow: inset 0 1px 1px #fff3f425,0 2px 7px #120e1940;
+  cursor: pointer;
+}
+.container-card .locker-heart svg { width: 15px; height: 15px; stroke-width: 1.75; }
+.container-card .locker-heart::after { content: ''; position: absolute; inset: -3px; border-radius: inherit; }
+.container-card .locker-heart:is(:hover,[aria-pressed='true']) { background: #5c4541; color: #ffe0c0; border-color: #e5bba098; }
+.container-card .locker-chance {
+  position: absolute;
+  z-index: 3;
+  top: 8px; left: 8px;
+  padding: 4px 7px;
+  border: 1px solid #e6d2df4a;
+  border-radius: 9px;
+  color: #fff6f3; background: #29232fe8;
+  font: 530 11px/1.25 Inter, Onest, sans-serif;
+}
+.container-card :is(.locker-product,.locker-heart):focus-visible { outline: 2px solid var(--ui-accent,#efc7a5); outline-offset: 2px; }
+@container case-card (max-width: 208px) {
+  .container-card .locker-product { border-radius: 14px; }
+  .container-card .locker-plate { height: 71px; grid-template-rows: minmax(0,1fr) 25px; padding: 4px 8px 6px; }
+  .container-card .locker-name { font-size: 15px; }
+  .container-card .locker-price, .container-card .locker-price .coin { justify-content: center; font-size: 14px; }
+  .container-card .locker-price { width: 65px; min-height: 25px; }
+  .container-card .locker-heart { bottom: 7px; left: 81px; width: 26px; height: 26px; }
+  .container-card .locker-chance { top: 5px; left: 5px; padding: 3px 4px; }
+}
+@media (prefers-reduced-motion:no-preference) {
+  .container-card .locker-product, .container-card .locker-heart { transition: border-color .16s,box-shadow .16s,background-color .16s; }
+}
+@media (prefers-reduced-transparency:reduce) {
+  .container-card .locker-product { background-color: #28232f; }
+}

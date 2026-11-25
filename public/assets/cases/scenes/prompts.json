@@ -1,0 +1,78 @@
+{
+  "generator": "Built-in ImageGen",
+  "atlasPromptPrefix": "Create an opaque photoreal cinematic GAME ART TEXTURE ATLAS for a premium collection catalog. Only output the atlas. EXACT layout: a single landscape image made of SIX separate equally sized rectangular product photographs in a perfectly aligned regular 3-column × 2-row grid, zero gutters, zero margins, zero dividers, zero frames, no compositing across cell edges. Crop guides at precisely one third and two thirds of width and half height. The final atlas will be cut at these coordinates. Consistent eye-level commercial product stills with distinct real-world settings: one CLOSED tactile collectible CS2 loot case per cell. The ENTIRE case is visible including corners and handle, centered a little ABOVE vertical center, case occupies roughly 65–72% of the cell width and under 55% of cell height, sky/ground breathing room for a wide horizontal crop. Clean PBR material definition, soft volumetric backlight, crisp key light on the case, legible from thumbnail size, controlled highlights, natural deep shadows, rich cinematic contrast. Each specific case has an entirely unique form, materials and conspicuous abstract emblem. Surfaces and atmosphere fill each background to cell edges. No printed words, numbers, text, UI, typography, logos of real brands, people, guns, labels, watermarks or stickers with writing. No open case. Case designs need to look like real fun sculptural examples of legendary equipment loot, NOT carry-on luggage in colors, not six variants of the same prop. Dramatic contemporary video game key art, not cartoon. Every panel has its own world and its own chosen accent. Aspect ratio of overall sheet can be very wide landscape, e.g. 2304×1024 if supported. Precisely three columns and precisely two rows. Compose specified six panels in reading order. ",
+  "atlases": [
+    {
+      "caseIds": [
+        "redline",
+        "arctic",
+        "neon",
+        "original-contraband",
+        "night-port",
+        "original-ronin"
+      ],
+      "prompt": "TOP LEFT: squat long black lacquer & carbon case with a custom large sculpted crimson dragon-line relief across front; fine red enamel seams. Crimson satin-like diagonal light blades overhead, black lacquer floor with crimson streaked reflection, rich vivid red on black, sharp frontal silhouette. TOP MIDDLE: curved pearl ceramic glacial case with thick ice-blue edge glow, sculptural snowflake seal, standing on cracked ice with floating frost and pale arctic mountain shapes. TOP RIGHT: chunky transparent prismatic violet/acrylic case, luminous violet coil-shaped emblem visible through the housing and ultraviolet rim, in an inky rain-soaked cyber alley, violet light pillars reflecting on the wet purple road. BOTTOM LEFT: broad sagging olive waxed tactical canvas cargo bag strapped tightly over a field crate, thick webbing and pale packing tape, weathered bronze buckles, heavy stencilled bird silhouette, forgotten warm warehouse with angled amber window sunlight and dust, absolutely NOT a suitcase. BOTTOM MIDDLE: squat dark petrol-teal naval hard case with hazard orange side guards, bold orange anchor emblem, worn shipping cleats, in a rainy nighttime container dock with warm crane lights. BOTTOM RIGHT: compact antique Japanese armour chest, layered vermilion lacquer scales, silk cord and gold menpo mask medallion, dark atmospheric shrine on red tatami with a candle, warm lacquer glows."
+    },
+    {
+      "caseIds": [
+        "hanami",
+        "original-asiimov",
+        "original-graffiti",
+        "copper",
+        "greenhouse",
+        "spectrum"
+      ],
+      "prompt": "TOP LEFT: oval ivory and blush sakura bento-inspired travel coffer, fragrant dark wood, carved cherry blossom emblem and magenta silk tie, on slate below a flowering branch, petals falling in mountain garden. TOP MIDDLE: offset angular white aerospace flight module with chunky matte orange panels, geometric graphite keystone-inlay seal on front, engineered hinge, sterile launch test bay lined with orange work lights. TOP RIGHT: beat-up compact silver aluminium flight chest with radiant cyan, lime and magenta handpainted non-lettering abstract spray art and dripping stylized eyeball emblem, hard-edged sunlight in a street-art underpass. BOTTOM LEFT: squat barrel-vaulted hammered copper and brass craftsman's chest, verdigris leaf, elegant radial gear clasp, amber sparks and copper vats in a nineteenth-century foundry. BOTTOM MIDDLE: long vivarium-style green tinted GLASS case held by brass botanical ribs, curling fern relief, moisture on glass, luxurious shadowy greenhouse lush broadleaf bokeh. BOTTOM RIGHT: sharp origami-like dichroic optical glass prism equipment case with bold triangular prism emblem, rainbow spectrum refracted through mineral glass, midnight observatory lens workshop, chromatic silver/purple/cyan."
+    },
+    {
+      "caseIds": [
+        "dry-dock",
+        "toxic",
+        "inferno",
+        "ice",
+        "sakura",
+        "cyber"
+      ],
+      "prompt": "TOP LEFT: modest steel-banded salt-bleached wooden dockworker's tool chest, nautical rope handles, large simple hook emblem burned into wood, dry dock planks at low tide with rusty chains and morning haze. TOP MIDDLE: brushed battleship grey squat reactor shipping canister encased in lime shock fins, large black trefoil in yellow ceramic on front, in a moody nuclear cooling hall with green instrumentation glow. TOP RIGHT: compact terra-cotta red firefighter salvage chest with brass corner guards, fire crest in copper, dusty Tuscan village steps at golden hour with glowing ember dust, warm coral/orange and umber. BOTTOM LEFT: trapezoidal storm blue and pale concrete transit locker with recessed steel vents and big mint bridge icon, beneath an urban canal overpass, water caustics and deep cyan municipal lighting. BOTTOM MIDDLE: Moroccan travel trunk covered in sand-hued embossed leather, brass lobed horseshoe-arch lock, ornate brass rim, beside sunlit tiled alley and terracotta walls, feathered palm shadows. BOTTOM RIGHT: hefty ancient carved jade and battleworn stone reliquary, step-pyramid relief, gold sun button on front, dense wet jungle ruins, cinematic shafts of chartreuse light, moss and limestone."
+    },
+    {
+      "caseIds": [
+        "starter",
+        "eco",
+        "headshot",
+        "rush",
+        "ak",
+        "awp"
+      ],
+      "prompt": "TOP LEFT: short, clean sky-blue enamel starter equipment box, white single-stripe star symbol on flip-latch, simple stackable terminals, at a brightly sunlit training courtyard bench with faded checker paint, fresh blue and warm beige. TOP MIDDLE: recycled corrugated-kraft supply carton with sturdy folded mint aluminum clips, green leaf shield stencil, resting on a gear-countertop with rolled cardboard sheets, mint workshop daylight; carefully detailed tactile thick cardboard, no logos or words. TOP RIGHT: small sculptural charcoal pistol presentation lockbox with silver-and-wine targeting reticle emblem, beveled lid, isolated under single overhead light in a geometric ballistics studio, burgundy light ring behind it. BOTTOM LEFT: bright kinetic yellow messenger-style case with black handles and twin forward chevron plates, slung against barriers in a smoky underground transit tunnel with horizontal yellow blurs. BOTTOM MIDDLE: rugged long reddish walnut and blackened steel equipment trunk exhibiting elegant woodgrain and a bold copper wolf medallion, weathered cold-war armory shed with rust-colored sunbeams. BOTTOM RIGHT: elongated forest-green marksman's hard case, green cloth wraps over a machined frame, precision eye emblem etched in brass, misty alpine overlook with distant dawn and soft lichen tones. Make long trunks occupy their own panel and not touch image grid edges."
+    },
+    {
+      "caseIds": [
+        "m4",
+        "pink",
+        "deep",
+        "midnight",
+        "gold",
+        "dragon"
+      ],
+      "prompt": "TOP LEFT: compact upright navy ballistic case, interlocking charcoal plates, embossed pale shield heraldry, set in a dim cobalt-lit command room with one strong white rim light. TOP MIDDLE: chunky retro bubblegum-pink pearlescent equipment box, bold black heart/lilac chrome emblem, curved armoured shell, on high-gloss mauve nightclub counter with blurred soft pink spotlights. TOP RIGHT: black basalt ancient Egyptian coffer with wide golden corner bands, striking golden scarab on turquoise front inset, in sandy waterside temple at dusk with reflected blue-and-amber caustics. BOTTOM LEFT: mysterious low angular stealth vault made of faceted matte-black ceramic with discreet violet crescent panel, action noir moonlit rooftop with indigo fog and sharp moon. BOTTOM MIDDLE: luxurious bronze-gold vault with round intricately milled gold sun-disk dial, concentric bullion bars built into the heavy front, gallery of shadows and luxurious liquid gold reflections. BOTTOM RIGHT: towering compact antique leather dragon-treasure coffer, bold enamelled red dragon relief curling around aged ivory shield with gold fittings, mossy candlelit medieval fortress arched recess, warm mythical emerald and brass tone."
+    },
+    {
+      "caseIds": [
+        "knife",
+        "doppler",
+        "sunset",
+        "storm",
+        "arcade",
+        "black"
+      ],
+      "prompt": "TOP LEFT: elegant dark charcoal collector's display case made from woven leather and glove stitch panels around a gold clasp shaped like a minimalist folded diamond blade glyph; placed on a burgundy tailor's workbench with velvet and brass tools, silver light grazing the stitching, no actual knives or weapons outside the case. TOP MIDDLE: rich sapphire & ruby liquid-iridescent titanium clamshell collector case, angular purple faceted crystal embedded as its seal, obsidian mineral setting under deep magenta aurora in a dark cave with chromatic reflections. TOP RIGHT: sunbleached sand/umber survey trunk fastened with olive canvas straps and aged brass star clasp, dusty sandstone rooftop at amber sunset overlooking a North African skyline, warm cream dust and warm shadows. BOTTOM LEFT: asymmetric heavy sky-blue and safety-orange construction lifting box with exposed bolted yellow corner plates and steel crane-hook sign, on a high-rise rooftop slab against a fogged city with a crane, steel-blue atmosphere and bright high-altitude sun. BOTTOM MIDDLE: chunky vintage beige 1990s desktop-computer equipment box, chunky lilac keyboard-like latches, smoked acrylic front window with pixel star emblem, on a teal carpet among softly glowing CRTs and cubicle shadows, mint/lavender nostalgia. BOTTOM RIGHT: compact menacing obsidian reconnaissance case with rounded black dive-pod pressure-vessel ribs and bone-white falcon-in-crosshairs emblem, on wet volcanic basalt in a coastal night squall, burnt red beacon in background and cold steel highlights."
+    }
+  ],
+  "individualScenes": [
+    {
+      "caseId": "original-ronin",
+      "prompt": "Photorealistic premium collector's videogame loot case product key art, cinematic landscape 3:2. A single compact black Japanese lacquered armored chest on a low obsidian altar, three quarter left frontal view. Beautiful huge sculpted WHITE CERAMIC HANNYA MASK insignia with pointed horns and expressive eyes mounted on the front panel, a bright braided SCARLET cord and knot wrapped along the front, restrained weathered brass clasps, glossy dark lacquer woodgrain, very tactile finishes, broad low horizontal silhouette. A vast deep CRIMSON SUN and Japanese torii gate silhouette in night mist behind it, dark cypress ridgeline and smoke. Striking silhouette: clearly visible white mask pops against black and rich vermilion. Center the chest, occupying around 68 percent of canvas width, 52 percent of height, with generous enough breathing room for horizontal or square product-card crops, subject midpoint at 51% height. Elegant slightly dark environmental set, bright silver key light edging the top and front, atmospheric red streaks. No lettering, no text, no numbers, no people, no actual weapons, no extra case, no interface, no picture frame."
+    }
+  ]
+}

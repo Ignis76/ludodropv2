@@ -1,0 +1,4 @@
+.dispatch-ink { position:absolute; inset:0; width:100%; height:100%; z-index:3; display:block; pointer-events:none; user-select:none; -webkit-user-select:none; touch-action:none; overflow:hidden; }
+.dispatch-ink-target { pointer-events:all; cursor:crosshair; }
+.dispatch-ink[aria-disabled=true] .dispatch-ink-target { pointer-events:none; }
+.dispatch-ink path { fill:none; stroke:#ffcb71; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; vector-effect:non-scaling-stroke; pointer-events:none; filter:drop-shadow(0 0 2px #ed9b4359); }

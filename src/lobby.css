@@ -1,0 +1,148 @@
+.arsenal-home {
+  --locker-type: -apple-system, BlinkMacSystemFont, Inter, 'Segoe UI', sans-serif;
+  --locker-display: -apple-system, BlinkMacSystemFont, Inter, 'Segoe UI', sans-serif;
+  --locker-ink: #f5f8ff;
+  --locker-muted: #b4c4d9;
+  --locker-accent: var(--ui-accent, #aad5ff);
+  --locker-rule: #c5deff35;
+  --locker-gutter: clamp(14px, 1.65vw, 34px);
+  container: lobby / inline-size;
+  min-width: 0;
+  padding: var(--home-top-inset) var(--locker-gutter) clamp(42px, 5vw, 84px);
+  color: var(--locker-ink);
+  font-family: var(--locker-type);
+}
+.arsenal-home :is(button, summary, a):focus-visible { outline: 2px solid #c4e3ff; outline-offset: 2px; }
+
+.credit-promo {
+  --promo-height: clamp(216px, 18.8cqi, 262px);
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-items: center;
+  min-height: var(--promo-height);
+  overflow: hidden;
+  border-radius: 19px;
+  background: #181d22;
+  box-shadow: 0 12px 30px #02070d45;
+}
+.credit-promo-art, .credit-promo::before, .credit-promo::after {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.credit-promo-art {
+  z-index: -3;
+  left: auto;
+  width: min(100%, calc(var(--promo-height) * 3.5));
+  object-fit: cover;
+  object-position: 58% 36%;
+  mask-image: linear-gradient(90deg, transparent, #000 16%);
+}
+.credit-promo::before {
+  content: "";
+  z-index: -2;
+  background: linear-gradient(90deg, #10151bed, #10151bd9 21%, #11171d88 41%, #151a1f14 62%, transparent 78%);
+}
+.credit-promo::after {
+  content: "";
+  z-index: 1;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px #d2e4f02c, inset 0 2px 0 #ffffff07;
+}
+.credit-promo-copy {
+  padding: 26px clamp(24px, 3.85cqi, 72px);
+  width: fit-content;
+  max-width: 75%;
+  color: #f8f6f1;
+}
+.credit-promo h2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 .28em;
+  margin: 0;
+  font: 650 clamp(30px, 3.35cqi, 54px)/1.04 var(--locker-display);
+  letter-spacing: -.055em;
+}
+.credit-promo h2 strong {
+  font-size: 1.62em;
+  font-weight: 720;
+  letter-spacing: -.075em;
+  color: #ffd399;
+}
+.credit-promo p {
+  margin: .72em 0 0;
+  color: #d3d6da;
+  font-size: clamp(13px, 1.1cqi, 17px);
+  font-weight: 460;
+  line-height: 1.45;
+}
+.credit-promo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px clamp(14px, 1.8cqi, 28px);
+  margin-top: clamp(18px, 1.8cqi, 27px);
+}
+.credit-promo-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 41px;
+  padding: 0 16px;
+  border: 1px solid #ffe4bb;
+  border-radius: 9px;
+  color: #282017;
+  background: linear-gradient(145deg, #ffdfac, #f5c489);
+  box-shadow: 0 3px 12px #0c09062e, inset 0 1px #fff4;
+  font: 680 14px/1 var(--locker-type);
+  white-space: nowrap;
+}
+@media (hover: hover) {
+  .credit-promo-actions button:hover { background: #ffe0b0; }
+}
+.credit-promo-actions button:active { transform: translateY(1px); }
+.credit-promo-voucher, .credit-promo-applied {
+  color: #c0c5cb;
+  font: 500 13px/1.2 var(--locker-type);
+}
+.credit-promo-voucher code {
+  margin-left: 3px;
+  color: #f5e2c6;
+  font: 650 14px/1.2 ui-monospace, "Cascadia Mono", Consolas, monospace;
+  letter-spacing: .075em;
+  user-select: all;
+}
+.credit-promo[data-status="redeemed"] h2 { color: #ffe2b9; }
+
+@container lobby (max-width: 760px) {
+  .credit-promo { min-height: 204px; border-radius: 15px; }
+  .credit-promo-copy { padding: 22px; max-width: 80%; }
+  .credit-promo-art { width: 100%; object-position: 66% center; }
+}
+@container lobby (max-width: 520px) {
+  .credit-promo { min-height: 215px; }
+  .credit-promo::before {
+    background: linear-gradient(90deg, #10151bee 0%, #10151bd0 30%, #10151b62 57%, transparent 83%);
+  }
+  .credit-promo-art { object-position: 68% center; }
+  .credit-promo-copy { padding: 19px 17px; max-width: 100%; }
+  .credit-promo h2 { display: block; font-size: clamp(23px, 5.8cqi, 29px); }
+  .credit-promo h2 strong { display: block; font-size: 1.93em; line-height: .96; margin-bottom: .08em; }
+  .credit-promo p { max-width: 18ch; font-size: 12px; line-height: 1.36; }
+  .credit-promo-actions { gap: 11px; margin-top: 16px; }
+  .credit-promo-actions button { min-height: 36px; padding: 0 11px; font-size: 12px; gap: 6px; }
+  .credit-promo-voucher { display: grid; gap: 2px; font-size: 10px; }
+  .credit-promo-voucher code { margin: 0; font-size: 12px; }
+  .credit-promo-applied { font-size: 11px; }
+}
+
+@container lobby (max-width: 360px) {
+  .credit-promo-actions { flex-direction: column-reverse; align-items: flex-start; gap: 8px; }
+  .credit-promo-voucher { display: inline; }
+  .credit-promo-voucher code { margin-left: 3px; }
+}

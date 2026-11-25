@@ -1,0 +1,721 @@
+
+/* Shared optical material; the item grid intentionally uses a lighter, filter-free finish. */
+.client :is(.case-detail,.mode-page,.armory-page,.dossier-page,.exchange-scene),
+.client .modal:has(.identity-editor,.library-skin-preview) {
+  --room-ink:#f7f7f8;
+  --room-muted:#c9cfd7;
+  --room-tint:#97c3ff;
+  --room-line:rgba(211,220,232,.25);
+  --room-edge:rgba(231,237,246,.4);
+  --room-polish:linear-gradient(140deg,rgba(226,232,242,.1),transparent 46%),linear-gradient(165deg,rgba(42,48,59,.71),rgba(22,26,35,.79));
+  --room-bed:linear-gradient(144deg,rgba(137,151,173,.13),transparent 42%),linear-gradient(171deg,rgba(34,41,52,.76),rgba(20,25,34,.80));
+  --room-control:linear-gradient(160deg,rgba(236,241,248,.1),transparent 52%),rgba(34,41,52,.76);
+  --room-button:linear-gradient(178deg,#ffedd7 0%,#f4d3ad 42%,#e9be92 100%);
+  --room-button-hover:linear-gradient(178deg,#fff2e2,#ffdfbd 48%,#f2c99e);
+  --room-button-ink:#302319;
+  --room-button-border:rgba(255,241,220,.78);
+  --room-relief:inset 0 1px 0 rgba(240,246,255,.24),inset 1px 0 0 rgba(201,220,255,.065),inset -1px -1px 0 rgba(121,157,228,.12),0 10px 24px rgba(3,6,17,.17);
+  --room-button-shadow:inset 0 1px 0 rgba(255,255,255,.68),inset 0 -1px 0 rgba(122,84,55,.36),0 3px 10px rgba(13,13,19,.22);
+  --room-radius:22px;
+  --room-small-radius:14px;
+}
+/* Shared surfaces for inventory, games and the exchange desk. */
+.client :is(.mode-page,.armory-page,.dossier-page,.exchange-scene),
+.client .modal:has(.library-skin-preview,.identity-editor) {
+  --surface-active:#43516a; --action:var(--room-tint); --action-soft:#cde5ff;
+  --window-surface:#182035f5; --control-surface:#263148d9; --item-surface:#1a2336e6; --play-surface:#182034d9; --rule:var(--room-line);
+  --foreground:var(--room-ink); --copy:var(--room-muted); --pale:#dde6f8;
+  --grotesk:Inter,Onest,Arial,sans-serif; --headline:Inter,Onest,Arial,sans-serif;
+  accent-color:var(--action);
+  --op-ink:var(--foreground); --op-muted:var(--copy); --op-amber:var(--action);
+  --op-display:var(--headline); --op-body:var(--grotesk);
+  color:var(--foreground); font-family:var(--grotesk); color-scheme:dark;
+}
+.client-main:has(> :is(.mode-page,.dossier-page,.skin-library,.exchange-scene)) {
+  background:transparent;
+}
+.client .mode-page { container:play-station / inline-size; --readout:var(--foreground); --quiet:var(--copy); --gold:var(--action); --frost:var(--action); --station-font:var(--grotesk); }
+.client .mode-page .field-game-header { grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);
+}
+.client .mode-page .field-game-header::before,.client .mode-page .field-game-header::after,
+.client .armory-intro h1::after,.client .armory-title::after,.client .dossier-id::before { content:none; }
+.client .field-game-lead { align-self:center; }
+.client .field-game-header .field-game-lead h1,.client .armory-intro h1,.client .dossier-name h1 {
+  margin:0; overflow-wrap:anywhere;
+}
+.client .game-specs { display:flex; gap:18px; flex-wrap:wrap; margin:14px 0 0; padding:0; color:var(--foreground); background:none; border:0; }
+.client .game-specs div { margin:0; padding:0; border:0; }
+.client .game-specs dt,.client .game-specs dd { font:500 11px/1.4 var(--grotesk); color:var(--copy); text-transform:none; letter-spacing:0; }
+.client .game-specs dd { margin:0; color:var(--action-soft); font-weight:760; }
+.game-print { position:relative; isolation:isolate; overflow:hidden; background:#415069; min-height:clamp(135px,13vw,222px); }
+.game-print::after { content:''; position:absolute; inset:0; pointer-events:none; opacity:1; background:linear-gradient(110deg,#1014234a,transparent 61%,#0a0d1638); }
+.client .mode-page .game-layout { display:grid; grid-template-areas:'board controls'; }
+.client .mode-page :is(.game-board,.upgrade-stage) {
+  --readout:var(--foreground); --quiet:var(--copy); --frost:var(--action); --gold:var(--action-soft); color:var(--readout); color-scheme:dark;
+}
+.client .mode-page .game-board { grid-area:board; }
+.client .mode-page .game-controls {
+  grid-area:controls; align-self:start; color:var(--foreground);
+}
+.client .mode-page .game-board .board-topline { color:var(--foreground); border-color:#8794ab74; }
+.client .mode-page .picker-panel { color:var(--foreground); }
+.client .mode-page .game-controls .control-heading,.client .mode-page .picker-title { min-width:0; color:var(--foreground); background:none; }
+.client .mode-page .control-heading>svg { width:19px; height:19px; padding:0; border:0; border-radius:0; background:none; box-shadow:none; }
+.client .mode-page .game-controls :is(label,legend),.client .mode-page .chance-finder>label:first-child,
+.client .mode-page :is(.picker-caption,.game-rules p,.game-rules>svg) { color:var(--copy); font-family:var(--grotesk); }
+.client .mode-page .game-rules { padding:14px 0 0; border-top:1px solid var(--rule); }
+.client .mode-page :is(.chance-input,.bet-input,.search-field,.picker-title .total-pill,.target-chance),
+.client .armory-page :is(.armory-search,.armory-select,.armory-select-all) {
+  color:var(--foreground); background:var(--control-surface); border:1px solid var(--rule); border-radius:7px; box-shadow:none;
+}
+.client .mode-page :is(.bet-input,.chance-input,.search-field) input,.client .armory-page :is(.armory-search input,.armory-select select) { color:var(--foreground); font-family:var(--grotesk); }
+.client .armory-page .armory-select select option { color:var(--foreground); }
+.client .mode-page :is(.chance-input,.bet-input,.search-field) svg,.client .mode-page .chance-input > span,.client .armory-page :is(.armory-select,.armory-search) svg { color:var(--action); }
+.client .mode-page .search-field input::placeholder,.client .armory-page .armory-search input::placeholder { color:var(--copy); }
+.client .mode-page :is(.bet-presets,.chance-presets,.mine-selector) button,.client .mode-page .roulette-options button {
+  border:1px solid var(--rule); border-radius:7px; color:var(--foreground); background:var(--control-surface); box-shadow:none; font-family:var(--grotesk);
+}
+.client .mode-page :is(.chance-presets,.mine-selector) button.active,.client .mode-page .roulette-options button[aria-pressed=true] {
+  color:var(--foreground); background:color-mix(in srgb,var(--action) 17%,#0b0e18d9); border-color:var(--action); box-shadow:inset 3px 0 var(--action);
+}
+.client .mode-page .roulette-options button:enabled:hover,.client .mode-page :is(.chance-presets,.mine-selector) button:enabled:hover { color:var(--foreground); border-color:var(--action); }
+.client .mode-page .roulette-options button :is(b,small),.client .mode-page .roulette-countdown { color:var(--action-soft); }
+.client .mode-page .game-controls .round-values,.client .mode-page .picker-selection-summary { color:var(--copy); box-shadow:none;
+}
+.client .mode-page .picker-selection-summary { margin:0 0 10px; padding:7px 10px; }
+.client .mode-page .chance-finder { padding-inline:0; border-color:var(--rule); }
+.client .mode-page .picker-grid { padding-inline:0; }
+.client .mode-page .chance-match,.client .mode-page .picker-selection-summary { color:var(--copy); }
+.client .mode-page .chance-match b,.client .mode-page .picker-selection-summary .coin { color:var(--action-soft); }
+.client .mode-page .primary-button,.client .mode-page.crash-mobile-cashout .primary-button,.client .exchange-action,.client .exchange-drawer-done {
+  background:var(--action); color:#0b0e18; border:0; border-radius:7px; font:730 14px/1.2 var(--grotesk); box-shadow:none;
+}
+.client .mode-page .primary-button:enabled:hover,.client .exchange-action:hover:enabled,.client .exchange-drawer-done:hover { background:var(--action-soft); color:#0b0e18; }
+.client .mode-page .primary-button:disabled,.client .exchange-action:disabled { border:0; opacity:1; box-shadow:none; }
+.client .mode-page :is(.mine-stake-slot,.wheel-skin-slot) :is(svg,.coin,small),.client .crash-page .crash-stake :is(.eyebrow,.coin),.client .mode-page .select-crash-item { color:var(--action-soft); }
+.client .mode-page :is(.mine-stake-slot,.wheel-skin-slot,.crash-stake) strong { color:var(--foreground); }
+.client .mode-page .crash-stake>span,.client .mode-page .wheel-skin-offer p { color:var(--copy); }
+.client .mode-page .stake-placeholder { color:var(--action); background:color-mix(in srgb,var(--action) 10%,#0c0f1a); border-color:var(--rule); }
+.client .crash-page .flight-readout,.client .mode-page .board-status { color:#e8edf8; }
+.client .crash-page .flight-multiplier,.client .crash-page .flight-readout .coin { color:var(--foreground); }
+.client .crash-page .flight-stage { background:transparent; }
+.client .crash-page .crash-graph { color:var(--action); border-color:#3a4861; }
+.client .crash-page .flight-telemetry { background:#2f3c5593; border-color:#2f3c5593; }
+.client .crash-page .flight-telemetry>div { background:#0e1220e3; }
+.client .crash-page .flight-telemetry b,.client .crash-page .flight-telemetry strong { color:var(--foreground); }
+.client .mode-page .crash-quote-skin strong,.client .mode-page .wheel-skin-offer p strong { color:var(--action-soft); }
+.client .mode-page .mine-cover { border-color:#3f4e67; }
+.client .mode-page .mine-prize-strip { color:#e7ecf8; background:#161d30d6; border-color:#34425b; }
+.client .mode-page .color-wheel-result { background:#101525ce; border:1px solid #45536c; border-radius:0; }
+.client .wheel-page .wheel-container .wheel-center { border-color:#13182a; color:#e3e8f5; }
+.client .wheel-page .wheel-center>strong { color:var(--foreground); font-family:var(--grotesk); }
+.client .wheel-page .wheel-center::before { background:conic-gradient(var(--action) var(--time-left),transparent 0); }
+.client .wheel-page .wheel-outer { background:linear-gradient(135deg,color-mix(in srgb,var(--action) 37%,#0c0f1a) 0%,color-mix(in srgb,var(--action) 66%,#0c0f1a) 34%,#1b2439 70%,color-mix(in srgb,var(--action) 53%,#0c0f1a)); border-color:#192034; }
+.client .wheel-page .wheel-outer::before { background:repeating-conic-gradient(#1b2439 0deg 1deg,var(--action-soft) 1deg 1.7deg,transparent 1.7deg 5deg); }
+.client .wheel-page .wheel-container .wheel-pointer { background:linear-gradient(100deg,color-mix(in srgb,var(--action) 59%,#0c0f1a),var(--action-soft) 46%,var(--action) 50%,color-mix(in srgb,var(--action) 31%,#0c0f1a)); }
+.client .wheel-page .wheel-pointer>span { background:var(--action); border-color:color-mix(in srgb,var(--action) 31%,#0c0f1a); }
+.client .color-wheel .wheel-center > svg,.client .color-wheel .wheel-center>span { color:#d6deed; }
+.client .color-wheel .wheel-halo { box-shadow:none; border-color:#8f9cb288; }
+.client .upgrade-page .upgrade-slot,.client .upgrade-page .upgrade-slot.target-slot { color:var(--foreground);
+}
+.client .upgrade-page .upgrade-slot :is(h3,.coin) { color:var(--foreground); font-family:var(--grotesk); }
+.client .upgrade-page .upgrade-slot :is(.slot-label,p,.upgrade-weapon) { color:var(--copy); }
+.client .upgrade-page .upgrade-slot .slot-placeholder { box-shadow:none; }
+.client .upgrade-page .choose-loadout { border-color:var(--action); }
+.client .upgrade-page .probability-dial { background:color-mix(in srgb,var(--action) 66%,#0c0f1a); border:0; }
+.client .upgrade-page .probability-dial::before { background:#1a2236; }
+.client .upgrade-page .probability-dial::after { --upgrade-mark-color:#dde3f1; }
+.client .upgrade-page .probability-readout span,.client .upgrade-page .probability-legend { color:#dce3f1; }
+.client .upgrade-page .probability-readout :is(strong,small) { color:var(--foreground); font-family:var(--grotesk); }
+.client .upgrade-page .probability-needle i,.client .upgrade-page .probability-legend i { background:var(--action); }
+.client .upgrade-page .upgrade-spin-switch { color:#e5eaf6; }
+.client .upgrade-page .upgrade-spin-switch input:checked { border-color:var(--action); background:color-mix(in srgb,var(--action) 44%,#0c0f1a); }
+.client .upgrade-page .upgrade-spin-switch input:checked::before { background:var(--action-soft); }
+
+.client .field-game-lead,.client .armory-intro,.client .dossier-cover,.client .dossier-metrics { text-shadow:0 1px 5px #0a0d16d9; }
+.client .mode-page .game-controls .control-heading { border-top:0; padding-top:0; }
+.client .armory-page .armory-index,.client .profile-inventory .armory-index { padding-inline:9px; background:#0b0e18ba; }
+.client .mode-page .picker-title,.client .dossier-heading { text-shadow:0 1px 6px #0a0d16; }
+.client .mode-page :is(.picker-panel,.game-board,.upgrade-stage),.client .armory-page .armory-title,.client .dossier-id { border-radius:4px; }
+.client .mode-page .picker-title { border-top:0; }
+.client .armory-page .armory-select select option { background:#101525; }
+.client .upgrade-page .probability-ticks { background:repeating-conic-gradient(#abb7cb 0deg 1deg,transparent 1deg 3deg); }
+.client .upgrade-page .probability-needle::before { background:conic-gradient(transparent 285deg,transparent 302deg,color-mix(in srgb,var(--action) 34%,transparent) 356deg,transparent); }
+.client .upgrade-page .slot-bulb { background:var(--rarity,var(--action)); box-shadow:none; }
+/* Item layout shared by the inventory and wager pickers. */
+.client .armory-page .armory-title { align-items:stretch; }
+.client .armory-intro { align-items:start; }
+.client .armory-intro h1 { font-size:clamp(40px,4.9vw,88px); }
+.client .skin-library .armory-mount::before { z-index:-1; }
+.client .skin-library .mount-plate { transform:none; box-shadow:none; }
+.client .armory-page .armory-index { border-block:1px solid var(--rule); box-shadow:none; }
+.client .armory-page .armory-kinds button { border:0; background:none; }
+.client .armory-page .armory-kinds button span,.client .armory-page .library-count { color:var(--copy); }
+.client .armory-page .armory-grid .skin-card,.client .mode-page .picker-grid .skin-card {
+  position:relative; isolation:isolate; display:flex; flex-direction:column; align-items:stretch; color:var(--foreground);
+}
+.client .armory-page .armory-grid .skin-card::before,.client .mode-page .picker-grid .skin-card::before {
+  content:''; display:block; position:absolute; z-index:-1; width:auto; border:0; box-shadow:none;
+}
+.client .armory-page .armory-grid .skin-card::after,.client .mode-page .picker-grid .skin-card::after { content:none; }
+.client :is(.armory-grid,.picker-grid) .skin-card .skin-top { order:4; min-height:15px; padding:0; font:600 10px/1.3 var(--grotesk); color:var(--copy); text-shadow:none; }
+.client .armory-page .armory-grid .skin-card .skin-top,.client .mode-page .picker-grid .skin-card .skin-top { color:var(--copy); }
+.client :is(.armory-grid,.picker-grid) .skin-card .skin-top .rarity-dot { flex:none; background:var(--rarity); }
+.client .armory-page .armory-grid .skin-card > img { order:0; height:var(--bay-height); margin:2px 0 10px; transform:none; filter:drop-shadow(0 4px 2px #0a0d1666); }
+.client .mode-page .picker-grid .skin-card>img { filter:drop-shadow(0 3px 2px #0a0d1660); }
+.client .armory-page .armory-grid .skin-card:hover>img { transform:scale(1.045); }
+.client .armory-page .armory-grid .skin-card .weapon-name,.client .mode-page .picker-grid .skin-card .weapon-name { order:1; color:var(--copy); font:640 11px/1.3 var(--grotesk); text-shadow:none; }
+.client .armory-page .armory-grid .skin-card>strong,.client .mode-page .picker-grid .skin-card>strong { order:2; margin:2px 0 5px; color:var(--foreground); white-space:normal; hyphens:auto; }
+.client .armory-page .armory-grid .skin-card .skin-bottom,.client .mode-page .picker-grid .skin-bottom { order:5; padding-top:6px; }
+.client .armory-page .armory-grid .skin-card .coin,.client .mode-page .picker-grid .skin-card .coin { font:700 12px/1.2 var(--grotesk); }
+.client :is(.armory-grid,.picker-grid) .skin-card .coin svg { color:var(--action-soft); }
+.client .armory-page .armory-grid .skin-card .skin-wear,.client .mode-page .picker-grid .skin-wear { color:var(--copy); background:transparent; border-color:#606e87; border-radius:0; }
+.client .armory-page .armory-grid .skin-card.selected,.client .mode-page .picker-grid .skin-card.selected { box-shadow:none; }
+.client :is(.armory-grid,.picker-grid) .skin-card.selected .skin-top svg { position:absolute; top:5px; right:5px; color:#0b0e18; background:var(--action); }
+.client .armory-page .secondary-button:hover { color:var(--action-soft); border-color:var(--action); }
+.client .armory-page .armory-actions { background:#0e121fe8; color:var(--foreground); border:0; border-radius:5px; }
+.client .armory-page .armory-clear { color:var(--foreground); }
+.client .armory-results .empty-state,.client .mode-page .empty-state { background:var(--item-surface); color:var(--copy); border:0; }
+.client .armory-results .empty-state :is(h3,p),.client .mode-page .empty-state :is(h3,p) { color:var(--foreground); }
+.client .modal:has(.library-skin-preview,.identity-editor) { color:var(--foreground); backdrop-filter:blur(14px); }
+.client .modal:has(.library-skin-preview,.identity-editor) .modal-head { border-color:var(--rule); }
+.client .modal:has(.library-skin-preview,.identity-editor) .modal-head h2 { color:var(--foreground); text-transform:none; }
+.client .modal:has(.library-skin-preview,.identity-editor) .modal-head .icon-button { color:var(--foreground); }
+.client .modal .library-skin-preview { color:var(--foreground); border-bottom:3px solid var(--rarity); }
+.client .modal .library-skin-preview :is(b,.coin) { color:var(--action-soft); }
+.client .modal .identity-emblems button { color:var(--foreground); border-color:var(--rule); }
+.client .modal .identity-editor label { color:var(--copy); }
+.client .modal .library-case-heading,.client .modal .identity-editor h3 { color:var(--foreground); }
+.client .modal .identity-editor input { border-color:var(--rule); }
+.client .modal .identity-emblems button span { color:var(--copy); }
+.client .modal .identity-emblems button[aria-pressed=true] { border:2px solid var(--action); box-shadow:none; }
+.client .modal .identity-chosen,.client .modal .identity-editor p { color:var(--action-soft); }
+/* Identity, chosen map and live collection totals. */
+.client .dossier-role { text-shadow:none; }
+.client .dossier-status-led { background:var(--action); border-radius:50%; box-shadow:none; }
+.client .dossier-name { max-width:100%; }
+.client .dossier-number b { color:var(--foreground); background:#0e121fe8; }
+.client .dossier-emblem { padding:0; border:0; border-radius:0; box-shadow:none; background:none; }
+.client .dossier-emblem::before { content:none; }
+.client .dossier-edit { border-bottom:1px solid var(--action); }
+.client .dossier-map { isolation:isolate; }
+.client .dossier-place { color:var(--foreground); }
+.client .dossier-metrics { display:grid; align-content:center; }
+.client .dossier-metrics>div { border-top:1px solid var(--rule); }
+.client .dossier-metrics .coin svg { color:var(--action); }
+.client .dossier-columns { grid-template-columns:minmax(0,1.25fr) minmax(235px,1fr); }
+.client .dossier-page :is(.dossier-panel,.dossier-links,.dossier-account) { padding:clamp(11px,1.4vw,23px); color:var(--foreground); background:var(--item-surface); border:0; border-radius:0; box-shadow:none; }
+.client .dossier-heading { border-color:var(--rule); }
+.client .profile-inventory .armory-index { border-top:0; }
+.client .profile-inventory :is(.inventory-pagination,.inventory-page-controls,.dossier-heading button,.armory-select-all),.client .dossier-page :is(.dossier-empty button,.dossier-drop-text button,.dossier-heading button,.dossier-balance>.coin) { color:var(--action-soft); }
+.client .profile-inventory .inventory-page-controls button[aria-current=page],.client .dossier-balance button { border-radius:7px; }
+.client .dossier-page .dossier-drop-value .coin,.client .dossier-page .dossier-balance .coin svg,.client .dossier-ledger li b { color:var(--action-soft); }
+.client .dossier-page .dossier-drop-art { background:var(--control-surface); }
+.client .dossier-page .dossier-account .dossier-heading h2 { color:var(--copy); }
+.client .dossier-ledger li .gain { color:#b8c2d5; }
+
+/* Exchange console, signature pad and inventory. */
+.client .exchange-scene {
+  --ex-font:var(--grotesk); --ex-display:var(--headline); --ex-ink:var(--foreground); --ex-muted:var(--copy); --ex-amber:var(--action);
+  padding:0; background:none;
+}
+.client .exchange-station { max-width:none; }
+.client .exchange-console { padding:0; border:0; border-radius:0; background:none; box-shadow:none; }
+.client .exchange-headframe { --bevel:0px; padding:0; background:none; clip-path:none; }
+.client .exchange-copy { color:var(--foreground); }
+.client .exchange-rack,.client .exchange-rail { margin-top:12px; }
+.client .exchange-rack-bar { color:#e4e9f6; border-bottom-color:#2c3952; }
+.client .exchange-count { border-radius:5px; }
+.client .exchange-count b { color:#e8edf8; }
+.client .exchange-socket::before { content:none; }
+.client .exchange-cross { color:#d5dded; opacity:.95; }
+.client .exchange-socket-label { color:var(--foreground); background:#0e121fee; }
+.client .exchange-sign { margin-top:12px; color:var(--foreground); }
+.client .exchange-pad { border:0; border-bottom:1px solid #6b7a92; color:var(--copy); background:#0f1321d9; border-radius:0; box-shadow:none; }
+.client .exchange-pad span { color:#bbc5d8; }
+.client .dispatch-ink path { filter:drop-shadow(0 0 .9px #0a0e1880); }
+.client .exchange-scene :is(.exchange-action,.exchange-drawer-done) { text-shadow:none; }
+.client .exchange-action:disabled { color:#abb7cb; background:#161d30; }
+.client .exchange-scene .dispatch-inventory,.client .exchange-drawer-body {
+  --stock-ink:var(--foreground); --stock-muted:var(--copy); --stock-amber:var(--action); --stock-edge:var(--rule);
+  color:var(--foreground); color-scheme:dark; border-top:1px solid var(--rule);
+}
+.client .dispatch-inventory::before,.client .exchange-console::before { content:none; }
+.client .dispatch-inventory-heading { border-color:var(--rule); }
+.client .dispatch-inventory-heading span,.client .dispatch-inventory .dispatch-stock-summary { color:var(--copy); }
+.client .dispatch-inventory :is(.dispatch-stock-sort,.dispatch-stock-search) { border-color:var(--rule); }
+.client .dispatch-stock-search input::placeholder { color:var(--copy); }
+.client .exchange-scene .dispatch-stock-item { color:var(--foreground); }
+.client .exchange-scene .dispatch-stock-item[aria-pressed=true] { border-color:var(--action); box-shadow:inset 0 0 0 1px var(--action); }
+.client .dispatch-stock-name,.client .dispatch-stock-name b,.client .dispatch-stock-details .coin { color:var(--foreground); font-family:var(--grotesk); }
+.client .dispatch-stock-rarity,.client .dispatch-stock-details .coin svg { color:var(--copy); }
+.client .dispatch-stock-check { color:#0b0e18; border:0; border-radius:0; box-shadow:none; }
+.client .dispatch-stock-pages button { color:var(--copy); }
+.client .dispatch-stock-pages button:is(:first-child,:last-child) { background:var(--item-surface); border-color:var(--rule); }
+.client .dispatch-stock-pages button[aria-current=page] { color:#0b0e18; background:var(--action-soft); border-color:var(--action-soft); }
+.client .exchange-drawer { color:var(--foreground); border-color:var(--rule); }
+@media(min-width:781px) {
+  .client .exchange-station { grid-template-columns:minmax(0,1.65fr) minmax(235px,.75fr); }
+  .client .exchange-console { grid-area:1/1; }
+  .client .exchange-left { grid-area:1/2; padding:0; }
+}
+.client .modal:has(.library-source-grid) { width:780px; padding:clamp(12px,2.25vw,28px); }
+.client .library-source-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:clamp(7px,1.5vw,14px); }
+.client .modal:has(.library-source-grid>:only-child) {
+ width:550px; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.94fr); align-content:start; column-gap:clamp(10px,2vw,20px);
+}
+.client .modal:has(.library-source-grid>:only-child) :is(.modal-head,.library-skin-preview) { grid-column:1/-1; }
+.client .modal:has(.library-source-grid>:only-child) .library-case-heading { display:block; margin:0; align-self:center; }
+.client .modal:has(.library-source-grid>:only-child) .library-case-heading span { white-space:nowrap; }
+.client .modal:has(.library-source-grid>:only-child) .library-source-grid { grid-template-columns:minmax(0,1fr); }
+.client .modal:has(.library-source-grid>:only-child) .library-skin-preview { margin-bottom:16px; }
+@media(max-width:665px) {
+ .client .library-source-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:360px) {
+ .client .modal-backdrop:has(.library-source-grid) { padding:6px; }
+ .client .modal:has(.library-source-grid) { padding:8px; }
+}
+
+/* Game, profile and inventory layouts. */
+.client-main:has(> :is(.mode-page,.dossier-page,.skin-library,.exchange-scene)) { padding:clamp(18px,2vw,34px) clamp(14px,2vw,36px) 54px; }
+.client .mode-page .field-game-header,.client .armory-page .armory-title,.client .exchange-header { position:relative; isolation:isolate; overflow:hidden; min-width:0; gap:0; border-bottom:1px solid var(--rule); }
+.client .mode-page .field-game-header {
+  display:grid; grid-template:'lead image' minmax(58px,1fr) 'specs image' auto / minmax(0,1.65fr) minmax(0,.75fr);
+  align-items:stretch; min-height:159px; margin:0 0 18px;
+}
+.client .field-game-lead { grid-area:lead; display:grid; align-content:end; width:auto; padding:0; }
+.client .armory-intro { min-width:0; align-self:center; padding:12px 16px 12px 0; gap:0; }
+.client .field-game-header .field-game-lead h1,.client .armory-intro h1,.client .exchange-header h1,.client .dossier-name h1 { color:var(--foreground); font:630 clamp(36px,3.55vw,56px)/1.06 var(--headline); text-transform:none; text-shadow:none; }
+.client .field-game-header .field-game-lead p,.client .armory-intro p,.client .exchange-copy p { margin:9px 0 0; max-width:58ch; color:var(--copy); font:500 15px/1.45 var(--grotesk); text-shadow:none; }
+.client .mode-page .game-specs { grid-area:specs; display:flex; flex-wrap:wrap; gap:7px 16px; align-items:center; align-self:end; margin:9px 0 0; }
+.client .game-specs div { display:flex; align-items:baseline; gap:6px; }
+.client .game-specs div+div { border-left:1px solid var(--rule); padding-left:16px; }
+.client .mode-page .game-specs dt,.client .mode-page .game-specs dd { font:500 13px/1.3 var(--grotesk); }
+.client .mode-page .game-specs dd { font-weight:650; }
+.client .mode-page .game-print,.client .skin-library .armory-mount { position:relative; isolation:isolate; min-width:0; min-height:0; align-self:stretch; overflow:hidden; margin:0; clip-path:none; }
+.client .mode-page .game-print { grid-area:image; min-height:0; }
+.client .mode-page .game-print::before,.client .skin-library .armory-mount::before { content:''; position:absolute; }
+.client .mode-page .game-print::after,.client .skin-library .armory-mount::after { content:''; position:absolute; z-index:-1; inset:65% 11% 10%; filter:blur(5px); pointer-events:none; }
+.client .mode-page .game-cover-item { position:absolute; inset:-12% 5% 10%; width:90%; height:106%; object-fit:contain; transform:none; filter:drop-shadow(0 8px 5px #0a0e1890); }
+.client .game-print figcaption { position:absolute; bottom:7px; inset-inline:12px; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font:660 12px/1.4 var(--grotesk); }
+.client .game-print figcaption span { font-weight:520; }
+.client .mode-page :is(.slot-label,.probability-readout>span,.flight-label,.crash-stake .eyebrow,.board-topline,.wheel-history>span,.wheel-center>span) { font-family:var(--grotesk); font-size:12px; letter-spacing:0; text-transform:none; }
+.client .mode-page .game-layout { grid-template-columns:minmax(0,1.65fr) minmax(265px,.8fr); }
+.client .mode-page .game-controls,.client .mode-page .picker-panel,.client .dossier-page :is(.dossier-panel,.dossier-account,.dossier-links),.client .exchange-rack,.client .exchange-sign,.client .exchange-rail,.client .exchange-scene .dispatch-inventory,.client .exchange-drawer-body { padding:clamp(14px,1.4vw,23px); }
+.client .mode-page .control-heading h3,.client .mode-page .picker-title h3,.client .dossier-heading h2,.client .dispatch-inventory-heading h2,.client .exchange-rack-bar h2,.client .exchange-sign h2,.client .modal .library-case-heading { color:var(--foreground); font:630 clamp(19px,1.55vw,25px)/1.17 var(--headline); letter-spacing:-.034em; text-transform:none; }
+.client .mode-page .game-controls .control-heading,.client .mode-page .picker-title,.client .dispatch-inventory-heading { padding:0 0 11px; margin-bottom:10px; border:0; border-bottom:1px solid var(--rule); }
+.client .mode-page .board-topline { border-bottom:1px solid var(--rule); }
+.client .mode-page :is(.primary-button,.crash-mobile-cashout .primary-button),.client .exchange-scene :is(.exchange-action,.exchange-drawer-done),.client .modal .identity-editor .primary-button { min-height:45px; border:0; border-radius:7px; background:var(--action); color:#0c0f1a; box-shadow:none; font:720 15px/1.2 var(--grotesk); }
+.client .mode-page :is(.bet-input,.chance-input,.search-field),.client .armory-page :is(.armory-search,.armory-select,.armory-select-all) { min-height:38px; }
+.client .mode-page :is(.search-field input,.picker-caption,.chance-presets button,.bet-presets button,.mine-selector button),.client .armory-search input { font-size:13px; }
+.client .mode-page :is(.game-rules p,.round-values span,.round-values .coin,.picker-selection-summary,.game-controls label) { font-size:14px; }
+.client .mode-page :is(.mine-selector,.chance-presets) button.active,.client .mode-page .roulette-options button[aria-pressed=true] { border-color:var(--action); }
+.client .mode-page .two-pickers { gap:13px; margin-top:14px; }
+.client .upgrade-page .upgrade-stage { padding:clamp(15px,1.6vw,27px); gap:13px; }
+.client .upgrade-page .upgrade-stage::before,.client .upgrade-page .upgrade-stage::after { content:none; }
+.client .upgrade-page .upgrade-slot,.client .upgrade-page .upgrade-slot.target-slot { min-height:0; padding:13px; border-top:2px solid var(--rarity,#8c99b0); }
+.client .upgrade-page .upgrade-slot .slot-placeholder { width:46px; height:46px; margin:9px 0 6px; }
+.client .upgrade-page .upgrade-slot h3 { margin:5px 0; font-size:17px; }
+.client .upgrade-page .upgrade-slot p { margin:4px 0; line-height:1.35; }
+.client .upgrade-page .upgrade-item-art { height:100px; }
+.client .upgrade-page .choose-loadout { min-height:35px; padding:6px 10px; font-size:13px; }
+.client .upgrade-page .probability-dial { width:min(248px,100%); }
+.client .upgrade-page .probability-readout strong { font:670 45px/1 var(--headline); color:var(--foreground); }
+.client .upgrade-page .probability-dial.lose strong { color:#ffb1c3; }
+.client .upgrade-page .upgrade-action {
+  display:grid; grid-template-columns:inherit; grid-template-columns:subgrid;
+  grid-template-areas:". launch options"; align-items:center;
+  column-gap:inherit; row-gap:8px; padding-top:10px; border-color:#a4bbdc30;
+}
+.client .upgrade-page .upgrade-action > .primary-button { grid-area:launch; justify-self:center; width:100%; max-width:220px; min-width:0; padding-inline:12px; }
+.client .upgrade-page .upgrade-spin-options {
+  grid-area:options; justify-self:end; display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:0 14px;
+}
+.client .upgrade-page .upgrade-slot:has(.upgrade-item-art) { justify-content:flex-start; }
+.client .upgrade-page .upgrade-slot:has(.upgrade-item-art) > .slot-label { margin-bottom:0; }
+.upgrade-contribution {
+  grid-area:credits; justify-self:center; width:min(100%,222px); min-width:0;
+  container:upgrade-credit / inline-size; text-align:start;
+  color:var(--room-ink); font-family:var(--grotesk);
+}
+.upgrade-credit-heading {
+  display:grid; grid-template-columns:max-content 1fr; align-items:center; column-gap:6px;
+  min-height:20px; white-space:nowrap;
+}
+.upgrade-credit-heading label {
+  display:inline-flex; align-items:center; gap:5px; color:#d2deec; font-size:13px; line-height:1.2; font-weight:570;
+}
+.upgrade-credit-heading label svg { flex:none; width:14px; height:14px; color:#a8c9ee; }
+.upgrade-credit-amount { display:flex; justify-self:end; }
+.upgrade-credit-amount .coin {
+  display:inline-flex; align-items:center; gap:4px; color:#f1f5fc;
+  font:650 16px/1.12 var(--headline); font-variant-numeric:tabular-nums; letter-spacing:-.02em;
+}
+.upgrade-credit-amount .coin svg { width:13px; height:13px; color:#b3cdeb; }
+.upgrade-credit-control { min-width:0; }
+.upgrade-credit-slider {
+  --grip-width:20px;
+  --grip-surface:repeating-linear-gradient(90deg,#6e849b 0 1px,#eff7ff 1px 2px,transparent 2px 4px) center / 6px 6px no-repeat,
+    linear-gradient(180deg,#f5faff,#c6d9eb 56%,#a8c0d8);
+  height:24px; position:relative;
+}
+.upgrade-credit-rail {
+  position:absolute; pointer-events:none; inset:calc(50% - 2.5px) calc(var(--grip-width) / 2) auto;
+  height:5px; border-radius:99px; background:#101926; box-shadow:inset 0 1px 3px #070c15a3,0 1px 0 #d1e4ff28;
+}
+.upgrade-credit-rail::before {
+  content:""; display:block; width:var(--credit-fill); height:100%; border-radius:inherit;
+  background:linear-gradient(90deg,#607da8,#a9d5ff); box-shadow:inset 0 1px 0 #ecfaff5c;
+}
+.upgrade-credit-rail::after {
+  content:""; position:absolute; inset:calc(100% + 2px) 0 auto; height:2px;
+  background:repeating-linear-gradient(90deg,#b7cce152 0 1px,transparent 1px 8.3333%);
+}
+.client .upgrade-credit-slider input[type=range] {
+  position:absolute; top:50%; inset-inline:0; transform:translateY(-50%); display:block; appearance:none;
+  width:100%; height:44px; min-height:0; margin:0; padding:0;
+  border:0; background:transparent; box-shadow:none; cursor:grab; touch-action:pan-y;
+}
+.upgrade-credit-slider input::-webkit-slider-runnable-track { height:5px; border:0; background:transparent; }
+.upgrade-credit-slider input::-moz-range-track { height:5px; border:0; background:transparent; }
+.upgrade-credit-slider input::-webkit-slider-thumb {
+  appearance:none; width:var(--grip-width); height:15px; margin-top:-5px; border:1px solid #d9eafa; border-radius:5px;
+  background:var(--grip-surface); box-shadow:0 2px 4px #050b18a8,inset 0 1px 0 #fff;
+}
+.upgrade-credit-slider input::-moz-range-thumb {
+  box-sizing:border-box; width:var(--grip-width); height:15px; border:1px solid #d9eafa; border-radius:5px;
+  background:var(--grip-surface); box-shadow:0 2px 4px #050b18a8,inset 0 1px 0 #fff;
+}
+.client .upgrade-credit-slider input:not(:disabled):active { cursor:grabbing; }
+.client .upgrade-credit-slider input:focus-visible { outline:none; }
+.upgrade-credit-slider input:focus-visible::-webkit-slider-thumb { outline:2px solid #9dccff; outline-offset:3px; }
+.upgrade-credit-slider input:focus-visible::-moz-range-thumb { outline:2px solid #9dccff; outline-offset:3px; }
+.client .upgrade-credit-slider input:disabled { opacity:.56; cursor:default; }
+.upgrade-credit-scale {
+  display:flex; justify-content:space-between; align-items:baseline; gap:4px; min-height:14px;
+  color:#c0cedd; font:500 11px/1.25 var(--grotesk); font-variant-numeric:tabular-nums;
+}
+@container upgrade-credit (max-width:201px) {
+  .upgrade-credit-heading label svg { display:none; }
+  .upgrade-credit-heading label { font-size:12px; }
+  .upgrade-credit-amount .coin { font-size:14px; }
+}
+@container upgrade-credit (max-width:165px) {
+  .upgrade-credit-heading { column-gap:3px; }
+  .upgrade-credit-heading label { font-size:11.5px; }
+  .upgrade-credit-amount .coin { font-size:clamp(12px,9.3cqi,13px); }
+  .upgrade-credit-amount .coin svg { display:none; }
+}
+@media (max-width:760px) {
+  .client .upgrade-page .upgrade-action {
+    grid-template-areas:"options options" "launch launch";
+  }
+  .client .upgrade-page .upgrade-action > .primary-button { max-width:none; }
+  .client .upgrade-page .upgrade-spin-options { justify-self:center; justify-content:center; }
+  .client .upgrade-page .upgrade-spin-switch { min-height:32px; font-size:13px; }
+}
+@media (forced-colors:active) {
+  .upgrade-credit-rail { display:none; }
+  .client .upgrade-credit-slider input[type=range],.upgrade-credit-slider input::-webkit-slider-thumb { appearance:auto; }
+  .client .upgrade-credit-slider input:focus-visible { outline:2px solid Highlight; }
+}
+.client .upgrade-spin-switch { min-height:40px; font-size:14px; }
+
+.client .upgrade-page .target-panel { container:upgrade-target / inline-size; }
+.client .upgrade-page .upgrade-target-toolbar {
+  display:grid; grid-template-columns:minmax(min-content,max-content) minmax(132px,1fr) clamp(106px,50cqi - 150px,222px);
+  grid-template-areas:"title credits search" "presets presets presets"; align-items:center; gap:6px clamp(7px,1.45cqi,15px);
+  padding-bottom:3px; margin-bottom:1px;
+}
+.upgrade-target-title { grid-area:title; display:flex; flex-wrap:wrap; align-items:center; gap:3px 9px; }
+.upgrade-target-title h3 { white-space:nowrap; }
+.upgrade-custom-chance {
+  display:inline-flex; align-items:center; gap:2px; padding:2px 7px; min-height:30px; border-radius:6px;
+  border:1px solid #a7bed749; background:#18202dbd; color:#c3d1e2; font:600 13px/1.2 var(--grotesk);
+}
+.upgrade-custom-chance input {
+  width:4.4ch; min-width:0; padding:0; border:0; background:transparent; outline:none;
+  color:var(--room-ink); font:inherit; font-variant-numeric:tabular-nums; text-align:right;
+}
+.upgrade-custom-chance:focus-within { outline:2px solid var(--room-tint); outline-offset:1px; }
+.upgrade-custom-chance:has([aria-invalid=true]) { border-color:#ffc2c8; }
+.client .upgrade-target-toolbar .search-field {
+  grid-area:search; width:100%; min-width:0; max-width:none; padding-inline:clamp(7px,1.4cqi,12px); gap:5px;
+}
+.upgrade-target-presets {
+  display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:5px;
+  grid-area:presets; width:100%; max-width:520px; padding:0 4px;
+}
+.upgrade-target-presets button {
+  position:relative; isolation:isolate; display:grid; place-items:center; min-width:0; min-height:35px;
+  padding:0; border:0; background:transparent; color:#d5deec; font:620 14px/1 var(--grotesk);
+  font-variant-numeric:tabular-nums;
+}
+.upgrade-target-presets button::before {
+  content:""; position:absolute; inset:1px 0; z-index:-1; transform:skewX(-12deg);
+  border-radius:5px; border:1px solid #788aa65c; background:linear-gradient(160deg,#2c3340eb,#171d29eb);
+  box-shadow:inset 0 1px 0 #e0edff0b,0 2px 4px #02061224;
+}
+.upgrade-target-presets button:enabled:hover::before { border-color:#aac4e68c; background:#343f51; }
+.upgrade-target-presets button[aria-pressed=true]::before { border-color:#a1c7f6b3; background:linear-gradient(150deg,#435774,#2a3b53); }
+.upgrade-target-presets button[aria-pressed=true] { color:#f3f8ff; }
+.upgrade-target-presets button:disabled { opacity:.48; }
+.upgrade-chance-error { margin:0 0 8px; color:#ffc2c8; font:520 13px/1.35 var(--grotesk); }
+@container upgrade-target (425px < width <= 520px) {
+  .upgrade-target-title { flex-direction:column; align-items:flex-start; }
+}
+@container upgrade-target (max-width:425px) {
+  .client .upgrade-page .upgrade-target-toolbar {
+    grid-template-columns:max-content minmax(132px,1fr) minmax(102px,.8fr);
+    grid-template-areas:"heading heading heading" "chance credits search" "presets presets presets"; gap:5px 7px;
+  }
+  .upgrade-target-title { display:contents; }
+  .upgrade-target-title h3 { grid-area:heading; }
+  .upgrade-custom-chance { grid-area:chance; }
+}
+@container upgrade-target (max-width:380px) {
+  .upgrade-target-presets { gap:3px; }
+  .upgrade-target-presets button { font-size:12px; }
+  .upgrade-custom-chance input { font-size:16px; }
+}
+@container upgrade-target (max-width:326px) {
+  .client .upgrade-page .upgrade-target-toolbar {
+    grid-template-columns:minmax(132px,1.2fr) minmax(102px,1fr);
+    grid-template-areas:"title title" "credits search" "presets presets";
+  }
+  .upgrade-target-title { display:flex; justify-content:space-between; }
+}
+
+.client .armory-page .armory-title { min-height:160px; display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,.72fr); align-content:stretch; }
+.client .skin-library .armory-mount>img { inset:-3% 7% 15% 15%; width:78%; height:101%; filter:drop-shadow(0 7px 3px #090b14b8); }
+.client .skin-library .mount-plate { left:auto; bottom:6px; right:7px; padding:3px 6px; background:transparent; border:0; border-radius:0; font-size:12px; }
+.client .skin-library .mount-plate strong { color:inherit; }
+.client .armory-page .armory-workspace { margin-top:15px; }
+.client .armory-page .armory-index { padding:0 0 12px; border:0; border-bottom:1px solid var(--rule); border-radius:0; background:transparent; gap:10px 14px; }
+.client .armory-page .armory-kinds { flex-wrap:wrap; gap:2px; }
+.client .armory-page .armory-kinds button { min-height:38px; padding:6px 11px; color:var(--copy); font:590 14px/1.2 var(--grotesk); }
+.client .armory-page .armory-kinds button[aria-pressed=true] span { color:inherit; }
+.client .armory-page .armory-grid { grid-template-columns:repeat(auto-fill,minmax(min(184px,100%),1fr)); }
+.client .armory-page .armory-grid,.client .mode-page .picker-grid { gap:11px; }
+.client .armory-page .armory-grid .skin-card,.client .mode-page .picker-grid .skin-card { --bay-height:clamp(88px,7.3vw,138px); padding:11px 13px; }
+.client .armory-page .armory-grid .skin-card::before,.client .mode-page .picker-grid .skin-card::before,.client .armory-page .armory-grid .skin-card:is([data-item-kind=sticker],[data-item-kind=pin])::before { inset:0 0 auto; height:calc(var(--bay-height) + 20px); }
+.client .armory-page .armory-grid .skin-card>strong,.client .mode-page .picker-grid .skin-card>strong { font:640 17px/1.2 var(--headline); letter-spacing:-.025em; }
+.client :is(.armory-grid,.picker-grid) .skin-card .skin-top .rarity-dot { width:6px; height:6px; border-radius:50%; }
+.client .armory-page .armory-grid .skin-card .weapon-name,.client .mode-page .picker-grid .skin-card .weapon-name { font-size:12px; }
+.client .armory-page .armory-grid .skin-card .coin,.client .mode-page .picker-grid .skin-card .coin { color:#ecf0fa; font-size:14px; }
+.client .mode-page .picker-grid .skin-card>img { height:var(--bay-height); }
+.client .armory-page .armory-grid .skin-card .skin-bottom,.client .mode-page .picker-grid .skin-bottom { border-color:#c7d0e226; }
+.client .dossier-id { position:relative; isolation:isolate; overflow:hidden; display:grid; grid-template-columns:minmax(210px,1.2fr) minmax(0,1fr); align-items:center; gap:20px; padding:clamp(18px,2.2vw,38px); }
+.client .dossier-map { position:absolute; z-index:-1; inset:0; min-height:0; background:none; }
+.client .dossier-map::before { background-position:center 43%; filter:saturate(.8); }
+.client .dossier-cover { z-index:1; position:relative; min-height:0; align-self:center; padding:0; gap:11px; text-shadow:none; }
+.client .dossier-role { font:600 13px/1.2 var(--grotesk); letter-spacing:0; text-transform:none; }
+.client .dossier-name h1 { font-size:clamp(32px,3.3vw,54px); }
+.client .dossier-emblem { width:clamp(52px,5vw,79px); }
+.client .dossier-place { z-index:1; bottom:7px; right:9px; padding:2px 5px; }
+.client .dossier-edit { align-self:start; min-height:35px; padding:6px 9px; }
+.client .dossier-metrics { position:relative; justify-self:end; width:100%; max-width:480px; grid-column:2; align-self:center; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0; padding:14px 0; backdrop-filter:blur(5px); }
+.client .dossier-metrics>div { display:flex; flex-direction:column-reverse; justify-content:end; align-items:start; padding:0 clamp(8px,1.1vw,17px); gap:5px; border:0; }
+.client .dossier-metrics>div+div { border-left:1px solid #8794aa58; }
+.client .dossier-metrics dt { font:520 12px/1.3 var(--grotesk); }
+.client .dossier-metrics dd { margin:0; color:var(--foreground); font:650 clamp(22px,2.1vw,35px)/1.04 var(--headline); letter-spacing:-.02em; overflow-wrap:anywhere; }
+.client .dossier-metrics dd .coin { flex-wrap:wrap; gap:4px; white-space:normal; }
+.client .dossier-page .profile-inventory { padding:0; }
+.client .profile-inventory .armory-sale { color:#0b0e19; background:var(--action); }
+.client .modal:has(.library-skin-preview,.identity-editor) .modal-head h2 { font:670 clamp(24px,2.3vw,37px)/1.1 var(--headline); letter-spacing:-.02em; }
+.client .exchange-headframe { container:exchange-cover / inline-size; max-width:none; margin-bottom:14px; }
+.client .exchange-header { height:clamp(167px,15cqi,228px); }
+.client .exchange-copy { width:59%; padding:clamp(14px,2.1cqi,31px); }
+.client .exchange-header h1 { margin:7px 0 0; font-size:clamp(38px,4.5cqi,59px); }
+.client .exchange-status { color:#d6deed; font-size:13px; }
+.client .exchange-status i { background:var(--action); }
+.client .exchange-machine-window { width:39%; clip-path:none; mask-image:linear-gradient(90deg,transparent,#000 14%); filter:saturate(.66); }
+.client .exchange-scene:is([data-phase=intake],[data-phase=scan],[data-phase=unlock],[data-phase=result]) .exchange-machine-window { width:48%; }
+.client .exchange-scene[data-phase=result] .exchange-header { height:clamp(180px,19cqi,250px); }
+.client .exchange-scene[data-phase=result] .exchange-header h1 { font-size:clamp(27px,3cqi,43px); }
+.client .exchange-station { gap:14px; }
+.client .exchange-rack { margin-top:0; }
+.client .exchange-rack-bar { padding:0 0 9px; border-bottom:1px solid var(--rule); background:none; }
+.client .exchange-count { padding:3px 7px; color:var(--copy); border:1px solid var(--rule); background:#0e1220; }
+.client .exchange-socket { height:clamp(63px,9.5cqi,102px); }
+.client .exchange-sign-main .exchange-pad { min-height:70px; }
+.client .dispatch-stock-name,.client .dispatch-stock-name b { font-size:15px; line-height:1.24; }
+.client .dispatch-stock-name>* { white-space:normal; overflow-wrap:anywhere; }
+.client .dispatch-stock-details .coin,.client .dispatch-stock-details .coin svg { color:var(--action-soft); font-size:14px; }
+.client .exchange-award { overflow:hidden; border:1px solid var(--rule); color:var(--foreground); }
+.client .exchange-award-data { border:0; }
+.client .exchange-award-name h2 { color:var(--foreground); font-family:var(--headline); font-weight:650; letter-spacing:-.045em; }
+.client .exchange-award-price span,.client .exchange-award-name>span { color:var(--copy); }
+.client .exchange-award-actions { border-top-color:var(--rule); }
+
+/* Large panes catch a clear highlight on the upper edge. Buttons and segments use a denser, smaller lens. */
+.client .mode-page .field-game-header,.client .armory-page .armory-title,.client .dossier-id,
+.client .exchange-header,.client .mode-page :is(.game-board,.upgrade-stage) {
+  border:1px solid var(--room-edge); border-radius:var(--room-radius); background:var(--room-polish); box-shadow:var(--room-relief);
+}
+.client .mode-page .field-game-header,.client .armory-page .armory-title { padding:clamp(15px,1.6vw,27px); gap:8px 18px; }
+.client .mode-page .field-game-header::before,.client .armory-page .armory-title::after { content:''; position:absolute; inset:0; z-index:-1; border:0; border-radius:inherit; pointer-events:none; background:linear-gradient(100deg,#0b142a41,transparent 76%); }
+.client .field-game-header .field-game-lead p,.client .armory-intro p,.client .mode-page .game-specs dt { color:#e1eafa; }
+.client .field-game-header .field-game-lead h1,.client .armory-intro h1,.client .exchange-header h1,.client .dossier-name h1 { font-family:var(--headline); font-weight:615; letter-spacing:-.056em; }
+.client .mode-page .game-specs div+div { border-left-color:var(--room-line); }
+.client .mode-page .game-specs dt { color:#e1eafa; }
+.client .mode-page .game-specs dd { color:#e7efff; }
+.client .mode-page .game-print,.client .skin-library .armory-mount {
+  background:radial-gradient(ellipse at 44% 74%,#839fcc2a,transparent 58%),linear-gradient(140deg,#c2d5fc23 0%,#b2c9fb08 31%,#26334a00 56%,#a8c2fa13 100%);
+  border:1px solid #d5e5ff30; border-radius:15px; box-shadow:inset 0 1px 0 #e5f0ff29,inset 0 -1px 0 #8babdf1d;
+}
+.client .mode-page .game-print::before,.client .skin-library .armory-mount::before { inset:0; width:auto; height:auto; opacity:1; border-radius:inherit; background:radial-gradient(ellipse 105% 130% at 9% -65%,transparent 78%,#e1ebff0c 86%,#dceaff23 89%,transparent 90.4%); }
+.client .mode-page .game-print::after,.client .skin-library .armory-mount::after { background:radial-gradient(ellipse,#080d1bb8,transparent 73%); }
+.client .game-print figcaption,.client .skin-library .mount-plate { color:#edf3ff; }
+.client .game-print figcaption span { color:#c1cce0; }
+.client .mode-page .game-controls,.client .mode-page .picker-panel,.client .dossier-page :is(.dossier-panel,.dossier-account,.dossier-links),
+.client .exchange-rack,.client .exchange-sign,.client .exchange-rail,.client .exchange-scene .dispatch-inventory,.client .exchange-drawer-body {
+  border:1px solid var(--room-line); border-radius:18px; background:var(--room-polish); box-shadow:var(--room-relief);
+}
+.client .mode-page .game-layout { gap:clamp(13px,1.35vw,23px); }
+.client .mode-page .picker-panel,.client .exchange-rack { background:linear-gradient(110deg,#09112638,transparent 61%),var(--room-polish); }
+.client .mode-page .board-topline { background:linear-gradient(175deg,#a6b9ea14,#53698c0a); color:#e4edff; border-color:var(--room-line); }
+.client .mode-page .board-status,.client .mode-page .round-values span,.client .mode-page .round-values strong,.client .mode-page .round-values .coin { color:#e0e9fa; }
+.client .mode-page .control-heading>svg { color:var(--action); }
+.client .mode-page .picker-selection-summary,.client .mode-page .game-controls .round-values { border:1px solid #b5cdf521; border-radius:10px; background:#121a2e91; }
+.client .mode-page :is(.bet-input,.chance-input,.search-field),.client .armory-page :is(.armory-search,.armory-select,.armory-select-all),
+.client .dispatch-inventory :is(.dispatch-stock-sort,.dispatch-stock-search),.client .modal .identity-editor input {
+  border:1px solid #bdd0f031; border-radius:12px; background:linear-gradient(155deg,#cadcf010,#829dc206 60%),#161e31c9;
+  color:var(--foreground); box-shadow:inset 0 1px 0 #e5efff14;
+}
+.client .mode-page .primary-button,.client .exchange-scene :is(.exchange-action,.exchange-drawer-done),.client .modal .identity-editor .primary-button,
+.client .armory-page .armory-sale,.client .dossier-balance button,.client .mode-page.crash-mobile-cashout .primary-button {
+  border:1px solid var(--room-button-border); border-radius:999px; background:var(--room-button); color:var(--room-button-ink); font-weight:650; box-shadow:var(--room-button-shadow);
+}
+.client .mode-page .primary-button:enabled:hover,.client .exchange-scene :is(.exchange-action,.exchange-drawer-done):enabled:hover,
+.client .armory-page .armory-sale:enabled:hover,.client .modal .identity-editor .primary-button:enabled:hover,.client .dossier-balance button:enabled:hover { background:var(--room-button-hover); color:var(--room-button-ink); }
+.client .mode-page .primary-button:disabled,.client .exchange-scene .exchange-action:disabled,.client .armory-sale:disabled {
+  border-color:#d1e0fc21; color:#c0c9db; background:#39445882; box-shadow:inset 0 1px #edf2ff10;
+}
+.client .mode-page :is(.chance-presets,.bet-presets,.mine-selector) button,.client .mode-page .roulette-options button,
+.client .mode-page :is(.mine-stake-slot,.wheel-skin-slot,.crash-stake),.client .armory-page .secondary-button,.client .modal .identity-editor .secondary-button,
+.client .exchange-pen-tools button,.client .exchange-back,.client .exchange-mobile-pick,.client .dossier-edit,.client .profile-inventory .inventory-page-controls button,.client .upgrade-page .choose-loadout {
+  border:1px solid #c2d8ff32; border-radius:12px; color:#e4ecfc; background:var(--room-control); box-shadow:inset 0 1px #edf5ff21;
+}
+.client .mode-page :is(.chance-presets,.bet-presets,.mine-selector) button,.client .upgrade-page .choose-loadout,
+.client .profile-inventory .inventory-page-controls button,.client .dossier-edit,.client .exchange-back,.client .exchange-mobile-pick { border-radius:99px; }
+.client .mode-page :is(.mine-selector,.chance-presets) button.active,.client .mode-page .roulette-options button[aria-pressed=true],
+.client .exchange-pen-tools button[aria-pressed=true],.client .profile-inventory .inventory-page-controls button[aria-current=page] {
+  color:#f6faff; border:1px solid #adcbf69c; background:linear-gradient(155deg,#607590dc,#3a4d68de); box-shadow:inset 0 1px #e7f2ff66;
+}
+.client .mode-page .game-controls :is(input,button,select):focus-visible,.client .modal .identity-editor :is(input,button):focus-visible { outline:2px solid var(--room-tint); outline-offset:2px; }
+.client .upgrade-page .upgrade-slot,.client .upgrade-page .upgrade-slot.target-slot {
+  border:1px solid #c5d8f63b; border-radius:15px; background:radial-gradient(ellipse at 50% 34%,color-mix(in srgb,var(--rarity,#92b0e1) 13%,transparent),transparent 67%),var(--room-control); box-shadow:inset 0 1px #e0edff28;
+}
+.client .upgrade-page .upgrade-slot .slot-placeholder { color:#b5d3ff; border:1px dashed #a7c4ed75; border-radius:50%; background:#35435b69; }
+.client .upgrade-page .probability-dial { box-shadow:0 0 0 1px #c7dbff78,0 5px 14px #070b143d; }
+.client .upgrade-page .probability-readout,.client .wheel-page .wheel-container .wheel-center {
+  background:radial-gradient(ellipse at 33% 5%,#687c99a8 0,transparent 42%),linear-gradient(157deg,#3e4d69,#182139 65%,#28364d);
+  box-shadow:inset 0 1px #edf5ff5e,inset 0 -1px #adcfff33,0 0 0 3px #8494aca6,0 4px 16px #0307178a;
+}
+.client .upgrade-page .probability-band { --arc-edge:#9cc6ff; --arc-center:#d4eaff; --arc-track:#3c4860; }
+.client .upgrade-page .probability-dial.win strong { color:#b6d9ff; }
+.client .mode-page .mine-grid { border-radius:15px; background:#101728a8; border-color:var(--room-line); }
+.client .mode-page .mine-cover { border-radius:11px; border:1px solid #d0e3ff4a; background:linear-gradient(149deg,#687b978f,#39496091 52%,#3041599e); box-shadow:inset 0 1px #eff5ff34,inset 0 -1px #8aaae330; }
+.client .mode-page .mine-cover svg { color:#dbe9ff; }
+.client .mode-page .mine-cell:enabled:hover .mine-cover { border-color:#d4e8ff; background:linear-gradient(150deg,#708eb7,#334866); }
+.client .crash-page .crash-graph { border-radius:13px; background:radial-gradient(ellipse at 50% 0,#86a9db25,transparent 70%),#0e1525bd; }
+.client .armory-page .armory-kinds { padding:4px; border:1px solid #c6dbff32; border-radius:99px; background:var(--room-control); box-shadow:inset 0 1px #e9f2ff21; }
+.client .armory-page .armory-kinds button { border-radius:99px; }
+.client .armory-page .armory-kinds button[aria-pressed=true] { color:#f8faff; background:linear-gradient(175deg,#64728c,#3c4a64); box-shadow:inset 0 1px #dfeaff79,0 1px 4px #070b1877; }
+.client .armory-page .armory-grid .skin-card,.client .mode-page .picker-grid .skin-card,.client .exchange-scene .dispatch-stock-item {
+  border-radius:var(--room-small-radius); border:1px solid var(--room-line); background:var(--room-bed); box-shadow:inset 0 1px #e6f0ff1c;
+}
+.client .armory-page .armory-grid .skin-card::before,.client .mode-page .picker-grid .skin-card::before,.client .armory-page .armory-grid .skin-card:is([data-item-kind=sticker],[data-item-kind=pin])::before {
+  border-radius:13px 13px 0 0; background:radial-gradient(ellipse at 52% 48%,color-mix(in srgb,var(--rarity) 16%,transparent),transparent 67%),linear-gradient(155deg,#bcd8fc23,transparent 55%,#a2beee11);
+}
+.client .armory-page .armory-grid .skin-card.selected,.client .mode-page .picker-grid .skin-card.selected { outline:2px solid #a8cfff; outline-offset:-2px; }
+.client .dossier-id { background:#10182c90; }
+.client .dossier-map { border-radius:inherit; overflow:hidden; }
+.client .dossier-map::after { background:linear-gradient(90deg,#10162bde,#101729b3 35%,#1a274b31 68%,#0e182cd1),linear-gradient(0deg,#10192ac4,transparent 75%); }
+.client .dossier-role,.client .dossier-number,.client .dossier-metrics dt { color:#c3cde0; }
+.client .dossier-metrics { border:1px solid #dbe8ff42; border-radius:15px; background:var(--room-control); box-shadow:inset 0 1px #e8f3ff36; }
+.client .dossier-metrics>div+div { border-color:#b4cdee38; }
+.client .dossier-place { border:1px solid #e4eeff2c; border-radius:99px; background:#10192c9c; }
+.client .dossier-page .profile-inventory { background:none; border:0; box-shadow:none; }
+.client .armory-page .library-count { padding:5px 8px; border-radius:99px; color:#e1eafa; background:#111a2caf; }
+.client .modal:has(.library-skin-preview,.identity-editor),.client .exchange-drawer {
+  border:1px solid #d4e4ff52; border-radius:22px; background:linear-gradient(148deg,#61708b57,#37425d35 32%,transparent 65%),#11182aeb; box-shadow:var(--room-relief),0 18px 80px #01041099;
+}
+.client .exchange-drawer-body { border:0; background:transparent; box-shadow:none; }
+.client .modal .library-skin-preview { border:1px solid #b7cbee36; border-radius:15px; background:radial-gradient(ellipse at 54% 42%,color-mix(in srgb,var(--rarity) 16%,transparent),transparent 66%),var(--room-bed); }
+.client .modal:has(.library-skin-preview,.identity-editor) .modal-head .icon-button { border:1px solid #c7d9f83d; border-radius:50%; background:var(--room-control); }
+.client .modal .identity-emblems button { border-radius:11px; background:var(--room-control); }
+.client .modal .identity-emblems button[aria-pressed=true] { background:linear-gradient(145deg,#667d9e52,#3c4f6f83); border-color:#b9d9ff; }
+.client .exchange-header { background:linear-gradient(112deg,#232e48ef,#16213bd6 46%,#18213aa6 69%),url('/assets/contracts/terminal-room.webp') center 40% / cover; }
+.client .exchange-status i { box-shadow:0 0 7px #a5ceff55; }
+.client .exchange-socket {
+  border:1px dashed #a5bde75c; border-radius:12px; background:linear-gradient(170deg,#849cc514,#141d2fc4); box-shadow:inset 0 1px 5px #02071536;
+}
+.client .exchange-socket[data-loaded=true] { border:1px solid color-mix(in srgb,var(--rarity) 52%,#cddcfd); background:radial-gradient(ellipse at 50% 32%,color-mix(in srgb,var(--rarity) 16%,transparent),transparent 70%),var(--room-control); }
+.client .exchange-sign-main .exchange-pad { border:1px solid #a5c7ef4d; border-radius:12px; background:radial-gradient(circle at 1px 1px,#b5cbed29 1px,transparent 1.5px) 0 0 / 13px 13px,#111a2dc9; box-shadow:inset 0 1px 4px #03061277; }
+.client .dispatch-ink path { stroke:#c6e1ff; }
+.client .exchange-award { border-radius:18px; background:var(--room-polish); box-shadow:var(--room-relief); }
+.client .exchange-award-data { background:radial-gradient(ellipse at 15% 20%,color-mix(in srgb,var(--rarity) 14%,transparent),transparent 65%),transparent; }
+@supports (backdrop-filter:blur(1px)) {
+  .client .mode-page .field-game-header,.client .armory-page .armory-title,.client .mode-page .game-controls,.client .exchange-sign,.client .exchange-rail { backdrop-filter:blur(9px) saturate(1.07); }
+  .client .dossier-metrics,.client .modal:has(.identity-editor,.library-skin-preview),.client .exchange-drawer { backdrop-filter:blur(19px) saturate(1.13); }
+}
+@media (prefers-reduced-transparency:reduce) {
+  .client .mode-page :is(.field-game-header,.game-board,.upgrade-stage,.game-controls,.picker-panel),.client .armory-page .armory-title,
+  .client .exchange-rack,.client .exchange-sign,.client .exchange-rail,.client .modal:has(.identity-editor,.library-skin-preview),.client .dossier-metrics,.client .exchange-drawer {
+    background:#1d263a; backdrop-filter:none;
+  }
+}
+@container play-station (max-width:740px) {
+  .client .mode-page .game-layout { grid-template-columns:minmax(0,1fr); grid-template-areas:'board' 'controls'; }
+}
+@media(max-width:760px) {
+  .client .dossier-columns { grid-template-columns:minmax(0,1fr); }
+  .client .dossier-id { grid-template-columns:minmax(0,1fr); align-content:start; gap:14px; }
+  .client .dossier-metrics { grid-column:1; justify-self:start; max-width:100%; padding:10px 0; }
+  .client .dossier-place { top:7px; bottom:auto; }
+  .client .armory-page .armory-grid { grid-template-columns:repeat(auto-fill,minmax(min(153px,100%),1fr)); }
+  .client .exchange-header { height:clamp(150px,26cqi,175px); }
+  .client .exchange-scene[data-phase=result] .exchange-header { height:clamp(160px,32cqi,195px); }
+  .client .mode-page .field-game-header,.client .armory-page .armory-title { min-height:134px; }
+  .client .upgrade-page .upgrade-stage { padding:10px; gap:10px; }
+  .client .upgrade-page .upgrade-slot,.client .upgrade-page .upgrade-slot.target-slot { padding:8px; }
+  .client .upgrade-page .upgrade-slot .slot-placeholder { width:35px; height:35px; }
+  .client .upgrade-page .upgrade-item-art { height:70px; }
+  .client .upgrade-page .probability-dial { width:min(170px,100%); }
+  .client .upgrade-page .probability-readout strong { font-size:33px; }
+  .client .upgrade-page .upgrade-slot h3 { font-size:15px; }
+}
+@media(max-width:540px) {
+  .client .armory-page .armory-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .client .armory-page .armory-grid .skin-card { --bay-height:78px; padding:8px; }
+  .client .armory-page .armory-grid .skin-card>strong { font-size:17px; }
+  .client .field-game-header .field-game-lead h1,.client .armory-intro h1 { font-size:clamp(27px,7.7vw,40px); }
+  .client .armory-page .armory-title { grid-template-columns:minmax(0,1.25fr) minmax(0,.85fr); min-height:124px; }
+  .client .armory-intro { padding:7px 11px 7px 0; }
+  .client .armory-intro p,.client .field-game-header .field-game-lead p,.client .exchange-copy p { font-size:13px; line-height:1.4; }
+  .client .skin-library .mount-plate { max-width:96%; padding:3px; gap:3px; font-size:10px; }
+  .client .armory-page .armory-kinds button { min-height:34px; padding:6px; font-size:13px; }
+  .client .mode-page .field-game-header { grid-template:'title image' auto 'description description' auto 'specs specs' auto / minmax(0,1fr) minmax(92px,34%); padding:13px; gap:8px 10px; }
+  .client .mode-page .field-game-lead { display:contents; }
+  .client .mode-page .field-game-lead h1 { grid-area:title; align-self:center; }
+  .client .mode-page .field-game-lead p { grid-area:description; margin:0; }
+  .client .mode-page .game-print { height:65px; align-self:center; }
+  .client .game-print figcaption { inset-inline:4px; bottom:3px; font-size:10px; }
+  .client .game-print figcaption span { display:none; }
+  .client .armory-page .armory-title { gap:9px; padding:13px; }
+  .client .mode-page .game-specs { flex-wrap:wrap; gap:6px 11px; margin:1px 0 0; }
+  .client .mode-page .game-specs dt,.client .mode-page .game-specs dd { font-size:12px; }
+  .client .game-specs div+div { padding-left:11px; }
+  .client .dossier-emblem { width:48px; }
+  .client .dossier-metrics dt { font-size:11px; }
+  .client .mode-page .game-controls,.client .mode-page .picker-panel { padding:12px; }
+  .client .exchange-copy { width:62%; padding:11px; }
+  .client .exchange-header h1 { font-size:30px; }
+  .client .exchange-scene[data-phase=result] .exchange-copy { width:51%; }
+  .client .exchange-scene[data-phase=result] .exchange-header h1 { font-size:22px; }
+  .client .exchange-status { font-size:12px; }
+  .client .exchange-sign-main .exchange-pad { min-height:60px; }
+}

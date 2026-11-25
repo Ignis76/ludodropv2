@@ -1,0 +1,16 @@
+.trade-award { margin-top:clamp(15px,2.7cqi,25px); animation:trade-receipt .32s cubic-bezier(.22,.74,.22,1) both; }
+.trade-award-summary {
+  display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:15px;
+  padding:clamp(15px,3cqi,28px); border-radius:15px; border:1px solid var(--trade-rule);
+  background:radial-gradient(ellipse at 0 100%,color-mix(in srgb,var(--rarity) 15%,transparent),transparent 66%),var(--trade-panel);
+  box-shadow:inset 0 1px #fff5e414;
+}
+.trade-award-rarity { display:inline-flex; align-items:center; gap:6px; color:#dad8d2; font:540 12px var(--grotesk); }
+.trade-award-rarity::before { content:''; width:7px; height:7px; border-radius:50%; background:var(--rarity); box-shadow:0 0 7px color-mix(in srgb,var(--rarity) 50%,transparent); }
+.trade-award-summary p { margin:12px 0 3px; color:#d2d2cc; font:550 15px/1.2 var(--grotesk); }
+.trade-award-summary h2 { margin:0; color:var(--trade-text); font:650 clamp(25px,5.1cqi,48px)/1.06 var(--headline); letter-spacing:-.045em; overflow-wrap:anywhere; }
+.trade-award-value { display:grid; gap:5px; }
+.trade-award-value strong { font-size:clamp(20px,3.7cqi,35px); }
+.trade-award-footer { margin-top:12px; }
+@keyframes trade-receipt { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:none; } }
+@media(prefers-reduced-motion:reduce) { .trade-award { animation:none; } }
