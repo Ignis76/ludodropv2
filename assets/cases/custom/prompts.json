@@ -1,0 +1,22 @@
+{
+  "mode": "built-in image_gen",
+  "date": "2026-11-06",
+  "assets": [
+    {
+      "id": "neon",
+      "prompt": "Use case: stylized-concept. Asset type: premium 3D loot case icon for a modern CS2 case-opening website, transparent cutout. One single luxurious futuristic tactical equipment case, rectangular hard-shell suitcase in three-quarter front view, lid fully closed, strong robust bevels, beautiful black carbon-fiber body, brushed dark titanium corners, luminous neon violet inset rails and a brilliant purple faceted crystal emblem on the front. Sophisticated industrial product design, crisp realistic PBR metal, studio rim lighting, detailed latches, physically plausible case construction. Entire case centered and fully visible, fills 80 percent of a square canvas, camera slightly above, isolated on fully transparent background. No guns, no weapons, no floating extra objects, no words or logos, no pedestal, no ground, no shadow beyond a subtle contact shadow, no graphic frames. This is the finished actual product asset, not a UI mockup."
+    },
+    {
+      "id": "frost",
+      "prompt": "Use case: stylized-concept. Asset type: premium 3D loot case icon for a CS2 case-opening website, transparent cutout. One single beautifully designed tactical equipment chest in three-quarter front view, lid fully closed. Pearl-white ceramic armour panels, precision dark titanium hinges and black seams, inset icy blue luminous rails and a cyan faceted hexagonal crystal inset on the front. Premium rugged science-fiction hard-shell case, wide rectangular proportions, integrated handle, physically plausible latches and construction. Crisp realistic PBR materials, clean studio lighting, intricate but readable silhouette. Entire object centered fully visible filling 80 percent of square canvas, camera slightly above, isolated fully transparent background. No guns, no weapons, no words or logos, no floating objects, no pedestal or ground, no graphic frame. Finished actual game catalog image, not UI."
+    },
+    {
+      "id": "gold",
+      "prompt": "Use case: stylized-concept. Asset type: legendary 3D loot case icon for a CS2 case-opening website, transparent cutout. A single premium wide rectangular tactical equipment vault in three-quarter front view, lid fully closed, black obsidian hard-shell body with thick polished champagne-gold metallic armour trim, elegant engraved geometric metal panels, warm gold luminous strips, a small gold faceted diamond emblem inset in the front, a robust integrated carry handle, intricate secure mechanical clasps. Luxurious collectible industrial product, crisp realistic PBR render, gold studio rim highlights. Entire object centered fully visible filling 80 percent of a square canvas, camera slightly above. Isolated on actual fully transparent background. No guns, no weapons, no text, no letters or logos, no extra objects, no pedestal, no ground, no graphic framing. Finished actual web asset, not a mockup."
+    },
+    {
+      "id": "sakura",
+      "prompt": "Use case: stylized-concept. Asset type: beautiful 3D loot case product icon for a CS2 website, transparent cutout. One single wide rectangular futuristic tactical hard-shell case in three-quarter front view, fully closed. Saturated pink and magenta enamel armour on dark graphite shell, purple titanium corner guards, minimal elegant cherry blossom engraving on the side, bright hot pink luminous inset rails, faceted pink gem emblem on the front, attractive robust integrated handle and clasp details. High-end industrial product rendering, tactile PBR metal, polished bevels and detailed latches. Entire case centered fully visible filling 80 percent of a square canvas, camera slightly above, isolated on truly transparent background. No guns or weapons, no text, no letters, no brand logos, no floating accessories, no pedestal or ground, no background design. Finished actual catalog asset, not a web mockup."
+    }
+  ]
+}
