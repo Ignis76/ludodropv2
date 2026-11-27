@@ -25,7 +25,7 @@ export function UpgradeCinematic({ active, fast, volume, inputs, contribution, l
   const dialog = useRef<HTMLDialogElement>(null), media = useRef<HTMLVideoElement>(null);
   const picture = useRef<HTMLDivElement>(null), still = useRef<HTMLImageElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null), numeral = useRef<HTMLImageElement>(null);
-  const skip = useRef<HTMLButtonElement>(null), equation = useRef<HTMLElement>(null);
+  const skip = useRef<HTMLButtonElement>(null), equation = useRef<HTMLElement>(null), progress = useRef<HTMLDivElement>(null);
   const [soundBlocked, setSoundBlocked] = useState(false);
 
   useLayoutEffect(() => {
@@ -48,7 +48,7 @@ export function UpgradeCinematic({ active, fast, volume, inputs, contribution, l
     const surface = dialog.current, film = media.current, glass = canvas.current;
     const windowFrame = picture.current, type = numeral.current, poster = still.current;
     if (!active || !surface || !film || !glass || !windowFrame || !type || !poster) return;
-    surface.show(); skip.current?.focus({ preventScroll: true });
+    surface.showModal(); skip.current?.focus({ preventScroll: true });
     const stage = surface.parentElement;
     const field = surface.getBoundingClientRect(), dial = stage?.querySelector('.probability-dial')?.getBoundingClientRect();
     const origin = dial ? `${dial.x + dial.width / 2 - field.x}px ${dial.y + dial.height / 2 - field.y}px` : '50% 50%';
@@ -84,7 +84,8 @@ export function UpgradeCinematic({ active, fast, volume, inputs, contribution, l
       // Install the same, already settled award underneath the film before its flight starts.
       if (!receiptReady && time >= FILM_DURATION - 1) { receiptReady = true; onDelivery(); }
       painter.paint(time, pose, fallback);
-      set('--scene', pose.background); set('--legend', pose.label * pose.background);
+      set('--scene', pose.background); set('--legend', pose.label);
+      if (progress.current) progress.current.style.transform = `scaleX(${Math.min(1, time / FILM_DURATION)})`;
       set('--gain', pose.mint);
       if (pose.delivery > 0) stage?.style.setProperty('--native-prize', String(easeBetween(.72, 1, pose.delivery)));
     }
@@ -122,22 +123,22 @@ export function UpgradeCinematic({ active, fast, volume, inputs, contribution, l
     }
     const resize = () => { painter.resize(); paint(elapsed); };
     const observer = new ResizeObserver(resize); observer.observe(surface); observer.observe(windowFrame);
+    if (windowFrame.parentElement) observer.observe(windowFrame.parentElement);
     const visibility = () => document.hidden ? suspend() : start();
     const freeze = () => { frozen = true; suspend(); };
     const thaw = () => { frozen = false; start(); };
     const failed = () => { unavailable = true; };
     const seek = () => { if (!running && !stopped) { elapsed = film.currentTime; paint(elapsed); } };
-    const escape = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finish(); } };
     surface.classList.toggle('film-fallback', fallback); resize(); start();
     film.addEventListener('ended', finish); film.addEventListener('error', failed); film.addEventListener('seeked', seek);
-    document.addEventListener('visibilitychange', visibility); document.addEventListener('keydown', escape, true);
+    document.addEventListener('visibilitychange', visibility); window.addEventListener('scroll', resize, { passive: true });
     document.addEventListener('freeze', freeze); document.addEventListener('resume', thaw);
     window.addEventListener('pagehide', freeze); window.addEventListener('pageshow', thaw);
     return () => {
       stopped = true; suspend(); opening?.cancel(); observer.disconnect();
       stage?.style.removeProperty('--native-prize');
       film.removeEventListener('ended', finish); film.removeEventListener('error', failed); film.removeEventListener('seeked', seek);
-      document.removeEventListener('visibilitychange', visibility); document.removeEventListener('keydown', escape, true);
+      document.removeEventListener('visibilitychange', visibility); window.removeEventListener('scroll', resize);
       document.removeEventListener('freeze', freeze); document.removeEventListener('resume', thaw);
       window.removeEventListener('pagehide', freeze); window.removeEventListener('pageshow', thaw); surface.close();
     };
@@ -145,57 +146,61 @@ export function UpgradeCinematic({ active, fast, volume, inputs, contribution, l
 
   return <dialog ref={dialog} className="upgrade-film" aria-label="Золотой апгрейд"
     onCancel={e => { e.preventDefault(); onFinish(); }}>
-    <div className="upgrade-film-frame">
-      <div ref={picture} className="upgrade-film-picture" data-landing={landing} aria-hidden="true">
-        <img ref={still} className="upgrade-film-poster" src={POSTER_URLS[0]} alt=""/>
-        <video ref={media} preload="auto" playsInline disablePictureInPicture poster={POSTER_URLS[0]}>
-          <source src="/assets/upgrade-film/induction-mobile.mp4" type="video/mp4" media="(max-width: 700px)"/>
-          <source src="/assets/upgrade-film/induction.mp4" type="video/mp4"/>
-          <source src="/assets/upgrade-film/induction.webm" type="video/webm"/>
-        </video>
+    <div className="upgrade-film-frame" onClick={e => { if (e.target === e.currentTarget) onFinish(); }}>
+      <div className="upgrade-film-theatre">
+        <div className="upgrade-film-top">
+          <span><Diamond size={17} aria-hidden="true"/>Золотая зона</span>
+          <div className="upgrade-film-controls">
+            {soundBlocked && volume > 0 && <button type="button" aria-label="Включить звук" onClick={() => {
+              const film = media.current;
+              if (!film) return;
+              film.muted = false;
+              void film.play().then(() => setSoundBlocked(false)).catch(() => { film.muted = true; });
+            }}><Volume2 size={16}/></button>}
+            <button ref={skip} type="button" onClick={onFinish}>Пропустить<ChevronsRight size={16} aria-hidden="true"/></button>
+          </div>
+        </div>
+        <div ref={picture} className="upgrade-film-picture" data-landing={landing} aria-hidden="true">
+          <img ref={still} className="upgrade-film-poster" src={POSTER_URLS[0]} alt=""/>
+          <video ref={media} preload="auto" playsInline disablePictureInPicture poster={POSTER_URLS[0]}>
+            <source src="/assets/upgrade-film/induction-mobile.mp4?cut=inspection" type="video/mp4" media="(max-width: 700px)"/>
+            <source src="/assets/upgrade-film/induction.mp4?cut=inspection" type="video/mp4"/>
+            <source src="/assets/upgrade-film/induction.webm?cut=inspection" type="video/webm"/>
+          </video>
+          <div className="upgrade-film-meter"><div ref={progress}/></div>
+        </div>
+        <div className="upgrade-film-footer">
+          <section className="upgrade-film-display" role="status" aria-atomic="true">
+            <div data-readout="stake" className="wing-input">
+              <span className="upgrade-film-eyebrow">Твоя ставка{inputs.length === 1 && <> · {inputs[0].weapon}</>}</span>
+              <div className="upgrade-film-stake"><strong>{sourceName(inputs)}</strong>
+                <div className="upgrade-film-thumbs">{inputs.map((s, index) => <img key={index} src={s.image} alt={s.weapon + ' | ' + s.name}/>)}</div>
+              </div>
+              <div className="upgrade-film-amount"><Coin value={stake}/>
+                {contribution > 0 && <small>С баланса <Coin value={contribution}/></small>}
+              </div>
+            </div>
+            <div data-readout="target" className="wing-target" hidden>
+              <span className="upgrade-film-eyebrow">Цель апгрейда · {target.weapon}</span>
+              <strong>{target.name}</strong>
+              <div className="upgrade-film-base"><Coin value={target.price}/></div>
+              <small ref={equation} className="upgrade-film-equation" hidden><Coin value={target.price}/> <i>×</i> {multiplier} <i>=</i> <Coin value={payout.total}/></small>
+            </div>
+            <div data-readout="award" className="upgrade-film-caption" hidden>
+              <p className="upgrade-film-multiplier"><span>{skin.weapon}</span><b>×{multiplier}</b></p>
+              <h2>{skin.name}</h2>
+              <div className="upgrade-film-value"><Coin value={skin.price}/>
+                {remainder > 0 && <small>+<Coin value={remainder}/> на баланс</small>}
+              </div>
+            </div>
+          </section>
+          <div className="upgrade-film-receipt">
+            <img src={target.image} alt=""/><div><span>Цель апгрейда</span><strong>{target.weapon} | {target.name}</strong></div>
+          </div>
+        </div>
       </div>
-      <div className="upgrade-film-grade" aria-hidden="true"/>
       <img ref={numeral} src={`/assets/upgrade-film/multiplier-${multiplier}.webp`} alt="" hidden/>
       <canvas ref={canvas} className="upgrade-film-glass" aria-hidden="true"/>
-      <div className="upgrade-film-top">
-        <span><Diamond size={15} aria-hidden="true"/>Золотая зона</span>
-        <div className="upgrade-film-controls">
-          {soundBlocked && volume > 0 && <button type="button" aria-label="Включить звук" onClick={() => {
-            const film = media.current;
-            if (!film) return;
-            film.muted = false;
-            void film.play().then(() => setSoundBlocked(false)).catch(() => { film.muted = true; });
-          }}><Volume2 size={16}/></button>}
-          <button ref={skip} type="button" onClick={onFinish}>Пропустить<ChevronsRight size={15} aria-hidden="true"/></button>
-        </div>
-      </div>
-      <section className="upgrade-film-display" role="status" aria-atomic="true">
-        <div data-readout="stake" className="wing-input">
-          <span className="upgrade-film-eyebrow">Твоя ставка{inputs.length === 1 && <> · {inputs[0].weapon}</>}</span>
-          <div className="upgrade-film-stake"><strong>{sourceName(inputs)}</strong>
-            <div className="upgrade-film-thumbs">{inputs.map((s, index) => <img key={index} src={s.image} alt={s.weapon + ' | ' + s.name}/>)}</div>
-          </div>
-          <div className="upgrade-film-amount"><Coin value={stake}/>
-            {contribution > 0 && <small>С баланса <Coin value={contribution}/></small>}
-          </div>
-        </div>
-        <div data-readout="target" className="wing-target" hidden>
-          <span className="upgrade-film-eyebrow">Цель апгрейда · {target.weapon}</span>
-          <strong>{target.name}</strong>
-          <div className="upgrade-film-base"><Coin value={target.price}/></div>
-          <small ref={equation} className="upgrade-film-equation" hidden><Coin value={target.price}/> <i>×</i> {multiplier} <i>=</i> <Coin value={payout.total}/></small>
-        </div>
-        <div data-readout="award" className="upgrade-film-caption" hidden>
-          <p className="upgrade-film-multiplier"><span>{skin.weapon}</span><b>×{multiplier}</b></p>
-          <h2>{skin.name}</h2>
-          <div className="upgrade-film-value"><Coin value={skin.price}/>
-            {remainder > 0 && <small>+<Coin value={remainder}/> на баланс</small>}
-          </div>
-        </div>
-      </section>
-      <div className="upgrade-film-receipt">
-        <img src={target.image} alt=""/><div><span>Цель апгрейда</span><strong>{target.weapon} | {target.name}</strong></div>
-      </div>
     </div>
   </dialog>;
 }

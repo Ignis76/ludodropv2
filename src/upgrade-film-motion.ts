@@ -8,8 +8,8 @@ export const UPGRADE_CUES = {
 export const AWARD_TIME = UPGRADE_CUES.award;
 export const POSTER_FRAMES = [14, 126, 224, 377] as const;
 export const POSTER_URLS = [
-  '/assets/upgrade-film/contact.webp', '/assets/upgrade-film/runway.webp',
-  '/assets/upgrade-film/rotor.webp', '/assets/upgrade-film/crown.webp',
+  '/assets/upgrade-film/contact.webp?cut=inspection', '/assets/upgrade-film/runway.webp?cut=inspection',
+  '/assets/upgrade-film/rotor.webp?cut=inspection', '/assets/upgrade-film/crown.webp?cut=inspection',
 ];
 
 export function easeBetween(start: number, end: number, time: number) {
@@ -38,8 +38,7 @@ export function transferFrame(time: number) {
   };
 }
 
-// The eight homogeneous coefficients come from the four actual Blender cameras.
-// Interpolation stays within a single shot, including immediately before a cut.
+// First three cameras track the rotor. The last tracks the moving surface of the display.
 export function cameraAt(time: number, shot: number, poster = false) {
   const track = cameras[shot];
   const first = track[0][0], last = track[track.length - 1][0];
@@ -49,10 +48,24 @@ export function cameraAt(time: number, shot: number, poster = false) {
   return a.slice(1).map((value, j) => value + (b[j + 1] - value) * mix);
 }
 
-export function project(matrix: number[], x: number, z: number) {
-  const w = 1 + matrix[6] * x + matrix[7] * z;
-  return { x: (matrix[0] + matrix[2] * x + matrix[4] * z) / w,
-    y: (matrix[1] + matrix[3] * x + matrix[5] * z) / w };
+export function project(matrix: number[], x: number, z: number, depth = 0) {
+  const w = 1 + matrix[6] * x + matrix[7] * z + matrix[10] * depth;
+  return { x: (matrix[0] + matrix[2] * x + matrix[4] * z + matrix[8] * depth) / w,
+    y: (matrix[1] + matrix[3] * x + matrix[5] * z + matrix[9] * depth) / w };
+}
+
+export function rimCenter(matrix: number[]) {
+  // The midpoint of the photographed ellipse includes the perspective shift on oblique shots.
+  return { x: matrix[11], y: matrix[12] };
+}
+
+export function unproject(matrix: number[], u: number, v: number, depth = 0) {
+  const a = matrix[2] - u * matrix[6], b = matrix[4] - u * matrix[7];
+  const c = matrix[3] - v * matrix[6], d = matrix[5] - v * matrix[7];
+  const w = 1 + matrix[10] * depth;
+  const x = u * w - matrix[0] - matrix[8] * depth, y = v * w - matrix[1] - matrix[9] * depth;
+  const det = a * d - b * c;
+  return { x: (x * d - b * y) / det, z: (a * y - x * c) / det };
 }
 
 export function sectorPoint(angle: number, radius: number) {

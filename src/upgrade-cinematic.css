@@ -1,140 +1,145 @@
-/* The film shares the footprint and final inventory slot of the live upgrade. */
-.client .upgrade-page .upgrade-stage { position: relative; isolation: isolate; }
 dialog.upgrade-film {
-  position: absolute; inset: 0; z-index: 12; width: 100%; height: 100%; max-width: none; max-height: none;
-  box-sizing: border-box; margin: 0; padding: 0; border: 0; border-radius: inherit;
-  overflow: hidden; background: transparent; color: #fbf6ed; font-family: inherit; text-shadow: none; color-scheme: dark;
+  position: fixed; inset: 0; width: 100%; height: 100%; height: 100dvh; max-width: none; max-height: none;
+  box-sizing: border-box; margin: 0; padding: 0; border: 0; border-radius: 0;
+  overflow: hidden; overscroll-behavior: contain; background: transparent;
+  color: #fbf6ed; font-family: inherit; text-shadow: none; color-scheme: dark;
 }
+.upgrade-film::backdrop { background: transparent; }
 .upgrade-film:not([open]), .upgrade-film [hidden] { display: none !important; }
 .client:has(.upgrade-film[open]) .drop-launcher { visibility: hidden; }
-.upgrade-film-frame { position: absolute; inset: 0; isolation: isolate; container-type: size; }
+.upgrade-film-frame {
+  position: absolute; inset: 0; display: grid; place-items: center; isolation: isolate;
+  padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right))
+    max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+}
 .upgrade-film-frame::before {
-  content: ''; position: absolute; inset: 0; background: #10181b; opacity: var(--scene, 1);
+  content: ''; position: absolute; inset: 0; pointer-events: none; opacity: var(--scene, 1);
+  background: radial-gradient(ellipse at 50% 45%, #0c151c70 0, #070d14b8 78%), #10192350;
+  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
 }
-.upgrade-film-picture, .upgrade-film-glass, .upgrade-film-grade { position: absolute; inset: 0; width: 100%; height: 100%; }
-.upgrade-film-picture { overflow: hidden; opacity: var(--scene, 1); }
-.upgrade-film-picture img, .upgrade-film-picture video {
-  position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 48%;
+.upgrade-film-theatre {
+  position: relative; display: grid; align-content: start; box-sizing: border-box;
+  width: min(1232px, calc(100% - 38px), calc(200dvh - 364px));
+  border: 1px solid #a19c8b6b; border-radius: 14px; overflow: hidden;
+  background: #111b22; opacity: var(--scene, 1); container-type: inline-size;
+  box-shadow: 0 32px 90px -25px #020508da, 0 4px 16px #03080c94;
 }
-.upgrade-film.film-fallback video { visibility: hidden; }
-.upgrade-film-grade {
-  pointer-events: none; opacity: var(--scene, 1);
-  background:
-    linear-gradient(0deg, #080d11bd 0%, #0a101356 17%, transparent 39%),
-    linear-gradient(113deg, #08121774 0%, transparent 34%, transparent 73%, #11131845),
-    linear-gradient(180deg, #08101578, transparent 21%);
-}
-.upgrade-film-glass { display: block; pointer-events: none; }
-.upgrade-film .coin { display: inline-flex; align-items: center; gap: .32em; color: inherit; font-size: inherit; white-space: nowrap; }
-.upgrade-film .coin svg { width: .85em; height: .85em; color: inherit; }
+.upgrade-film-top, .upgrade-film-footer { color: #faf6ed; }
 .upgrade-film-top {
-  position: absolute; top: clamp(10px, 4cqh, 22px); left: 2.8%; right: 2.4%; display: flex; align-items: center;
-  justify-content: space-between; pointer-events: none; opacity: var(--scene, 1);
+  display: flex; align-items: center; justify-content: space-between; min-height: 45px;
+  gap: 10px; padding-inline: clamp(13px, 2.6cqw, 32px) clamp(6px, 1.5cqw, 18px);
+  border-bottom: 1px solid #b0b4af38;
+  background: linear-gradient(112deg, #252a29, #172229 55%, #121c24);
 }
-.upgrade-film-top > span, .upgrade-film-controls button {
-  display: inline-flex; align-items: center; gap: 7px; font-family: inherit; line-height: 1; font-weight: 650;
+.upgrade-film-top > span, .upgrade-film-controls, .upgrade-film-controls button {
+  display: inline-flex; align-items: center; gap: 7px;
 }
 .upgrade-film-top > span {
-  padding: 7px 10px 7px 8px; border-radius: 5px; background: #0911159c;
-  border: 1px solid #d2b9864d; color: #f6dfa9; font-size: clamp(11px, 1.06cqw, 15px);
+  font-weight: 680; font-size: clamp(12px, 1.22cqw, 16px); line-height: 1; color: #f2d299;
 }
-.upgrade-film-top > span svg { color: #f4bf68; }
-.upgrade-film-controls { display: flex; gap: 7px; pointer-events: auto; }
+.upgrade-film-top > span svg { color: #edba6a; }
+.upgrade-film-controls { gap: 3px; }
 .upgrade-film-controls button {
-  min-height: 36px; padding: 0 11px; border: 1px solid #b4bdba48; border-radius: 6px; background: #10181cd6;
-  color: #edece7; font-size: 12px; cursor: pointer;
+  border: 1px solid transparent; border-radius: 5px; min-height: 38px; padding: 0 8px;
+  background: transparent; color: #dfe4e2; font-family: inherit; font-size: 12px; line-height: 1; font-weight: 600; cursor: pointer;
 }
-.upgrade-film-controls button:hover { background: #344045; }
-.upgrade-film-controls button:focus-visible { outline: 2px solid #ffdf9c; outline-offset: 2px; }
-.upgrade-film-display {
-  position: absolute; left: 3.25%; bottom: 6.2%; margin: 0; width: max-content; max-width: min(43%, 640px);
-  text-align: left; color: #fff9ee; opacity: var(--legend, 1); pointer-events: none;
-  text-shadow: 0 2px 7px #0c1115b3, 0 0 24px #0b121753;
+.upgrade-film-controls button:hover { background: #ffffff12; }
+.upgrade-film-controls button:focus-visible { outline: 2px solid #f6cf90; outline-offset: -2px; }
+.upgrade-film-picture {
+  position: relative; width: 100%; aspect-ratio: 2 / 1; min-width: 0; align-self: center; overflow: hidden; background: #132026;
 }
-.upgrade-film-display [data-readout] {
-  display: grid; align-content: end; justify-items: start; gap: clamp(4px, 1.25cqh, 9px);
+.upgrade-film-picture img, .upgrade-film-picture video {
+  position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; object-position: center;
 }
+.upgrade-film.film-fallback video { visibility: hidden; }
+.upgrade-film-meter {
+  position: absolute; inset: auto 0 0; height: 2px; background: #0c171db3; pointer-events: none;
+}
+.upgrade-film-meter > div {
+  width: 100%; height: 100%; transform: scaleX(0); transform-origin: left;
+  background: linear-gradient(90deg, #987548, #ecd098);
+}
+.upgrade-film-glass { position: absolute; display: block; pointer-events: none; }
+.upgrade-film-footer {
+  min-height: 104px; padding: 12px clamp(14px, 2.6cqw, 32px); box-sizing: border-box;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  background: linear-gradient(112deg, #212b2c, #152129 53%, #101a21);
+}
+.upgrade-film-display { margin: 0; min-width: 0; text-align: left; opacity: var(--legend, 1); }
+.upgrade-film-display [data-readout] { display: grid; justify-items: start; align-content: center; gap: 4px; }
 .upgrade-film-eyebrow, .upgrade-film-multiplier {
-  display: inline-flex; align-items: center; gap: .67em; margin: 0; color: #e1ded5;
-  font-weight: 620; line-height: 1.12; font-size: clamp(12px, 1.17cqw, 18px);
+  display: inline-flex; align-items: center; gap: 8px; margin: 0; color: #c6cfcd;
+  font: inherit; font-size: clamp(11px, 1.15cqw, 15px); font-weight: 570; line-height: 1.2;
 }
 .upgrade-film-display strong, .client .upgrade-film-caption h2 {
-  display: block; margin: 0; padding: 0; font-family: inherit; color: #fff9ee; line-height: .99;
-  font-size: clamp(25px, min(4.05cqw, 11cqh), 65px); font-weight: 720; letter-spacing: -.048em; text-wrap: balance;
+  display: block; margin: 0; padding: 0; color: #fffaf2; line-height: 1.05; text-shadow: none;
+  font-family: inherit; font-size: clamp(24px, 3cqw, 39px); font-weight: 680; letter-spacing: -.04em;
+  text-wrap: balance; overflow-wrap: anywhere;
 }
-.upgrade-film-stake { display: flex; align-items: center; gap: clamp(5px, 1.2cqw, 15px); flex-wrap: wrap; }
-.upgrade-film-thumbs { display: flex; align-items: center; height: clamp(26px, 7.9cqh, 44px); }
-.upgrade-film-thumbs img { width: clamp(28px, 3.5cqw, 50px); height: 100%; object-fit: contain; filter: drop-shadow(0 2px 3px #000a); }
+.upgrade-film-stake { display: flex; gap: 9px; flex-wrap: wrap; align-items: center; }
+.upgrade-film-thumbs { display: flex; align-items: center; height: clamp(23px, 3cqw, 32px); }
+.upgrade-film-thumbs img { display: block; width: clamp(25px, 3.5cqw, 44px); height: 100%; object-fit: contain; }
 .upgrade-film-thumbs img + img { margin-left: -4px; }
-.upgrade-film-amount, .upgrade-film-base, .upgrade-film-value, .upgrade-film-equation {
-  display: inline-flex; align-items: baseline; flex-wrap: wrap; gap: .18em .62em;
-  color: #f5d398; font-size: clamp(13px, min(1.55cqw, 4.8cqh), 22px);
-  font-weight: 660; font-variant-numeric: tabular-nums; line-height: 1.2;
+.upgrade-film .coin { display: inline-flex; align-items: center; gap: .32em; color: inherit; font-size: inherit; white-space: nowrap; }
+.upgrade-film .coin svg { width: .83em; height: .83em; color: inherit; }
+.upgrade-film-amount, .upgrade-film-base, .upgrade-film-equation, .upgrade-film-value {
+  display: inline-flex; align-items: baseline; flex-wrap: wrap; gap: .18em .65em;
+  color: #f2ce90; font-size: clamp(13px, 1.35cqw, 18px); font-weight: 650;
+  font-variant-numeric: tabular-nums; line-height: 1.2;
 }
-.upgrade-film-value small, .upgrade-film-amount small { color: #e1dfd7; font-weight: 550; font-size: .78em; white-space: nowrap; }
+.upgrade-film-value small, .upgrade-film-amount small { color: #c8d1ce; font-size: .8em; font-weight: 550; white-space: nowrap; }
 .upgrade-film-equation { opacity: var(--gain, 0); }
-.upgrade-film-equation i { font-style: normal; color: #ebe6db; font-weight: 500; }
+.upgrade-film-equation i { font-style: normal; font-weight: 500; color: #e6e4dd; }
 .upgrade-film[data-minted=true] .upgrade-film-base { display: none; }
 .upgrade-film-multiplier b {
-  padding: .18em .42em; background: #523711e0; color: #ffe3a2; border: 1px solid #e6c076a3;
-  border-radius: 4px; font-size: .93em; line-height: 1;
+  font-size: .93em; line-height: 1; padding: .18em .4em; border: 1px solid #b78a50;
+  border-radius: 4px; background: #533d24; color: #ffe4af;
 }
 .upgrade-film-receipt {
-  position: absolute; right: 3%; bottom: 7%; display: none; align-items: center; gap: 8px;
-  max-width: 30%; padding: 6px 10px; background: linear-gradient(110deg,#111b1cbb,#12181888);
-  border-left: 1px solid #f1cc86; color: #ecebe4; opacity: var(--legend, 1);
+  max-width: min(30cqw, 322px); min-width: 0; display: flex; align-items: center; gap: 10px;
+  padding: 3px 0 3px clamp(9px,1.75cqw,24px); border-left: 1px solid #c2b29447;
+  visibility: hidden; opacity: var(--legend, 1);
 }
-.upgrade-film[data-shot=award] .upgrade-film-receipt { display: flex; }
-.upgrade-film-receipt img { width: clamp(36px, 4.4cqw, 64px); height: 34px; object-fit: contain; }
+.upgrade-film[data-shot=award] .upgrade-film-receipt { visibility: visible; }
+.upgrade-film-receipt img { width: clamp(34px, 5.3cqw, 70px); height: 37px; object-fit: contain; }
 .upgrade-film-receipt div { min-width: 0; }
-.upgrade-film-receipt span, .upgrade-film-receipt strong { display: block; line-height: 1.2; }
-.upgrade-film-receipt span { color: #c4cac8; font-size: 10px; }
-.upgrade-film-receipt strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: clamp(12px, 1.1cqw, 16px); }
+.upgrade-film-receipt span, .upgrade-film-receipt strong { display: block; line-height: 1.28; }
+.upgrade-film-receipt span { margin: 0 0 3px; color: #aebdba; font-size: 11px; }
+.upgrade-film-receipt strong { color: #e5e9e4; text-wrap: balance; overflow-wrap: anywhere; font-size: clamp(12px, 1.1cqw, 15px); }
 .client .upgrade-page :is(.chamber-receiving, .chamber-gold) .target-slot .upgrade-item-art > img { animation: none; }
 .client .upgrade-page .chamber-receiving .target-slot .upgrade-item-art > img { opacity: var(--native-prize, 0); }
-@container (max-width: 700px) and (max-aspect-ratio: 1.45) {
-  .upgrade-film-picture, .upgrade-film-display {
-    --film-head: clamp(42px, 9cqh, 54px);
-    --film-window: min(53cqh, 76cqw);
-  }
-  .upgrade-film-picture { top: var(--film-head); height: var(--film-window); }
-  .upgrade-film-picture::after {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(0deg, #10181b, transparent 12%);
-  }
-  .upgrade-film-grade {
-    background: radial-gradient(ellipse at 15% 120%, #71553540, transparent 52%),
-      linear-gradient(180deg, #07101270, transparent 16%);
-  }
-  .upgrade-film-display {
-    max-width: 94%; width: 92%; left: 5%; bottom: auto;
-    top: calc(var(--film-head) + var(--film-window) + clamp(9px, 3.5cqh, 23px));
-  }
-  .upgrade-film-display [data-readout] { gap: 6px; }
-  .upgrade-film-display strong, .client .upgrade-film-caption h2 { font-size: clamp(23px, min(7.9cqw, 6.1cqh), 35px); line-height: 1.03; }
-  .upgrade-film-top { left: 10px; right: 10px; top: 9px; }
-  .upgrade-film-controls button { min-height: 36px; font-size: 11px; }
-  .upgrade-film-thumbs { height: 29px; }
-  .upgrade-film-thumbs img { width: 33px; }
-  .upgrade-film-receipt {
-    left: 5%; right: 5%; max-width: none; bottom: 3.4%; padding: 8px 0 0; border: 0;
-    border-top: 1px solid #bba77852; background: none;
-  }
-  .upgrade-film-receipt img { width: 34px; height: 24px; }
-}
-@container (max-width: 350px) and (max-aspect-ratio: 1.45) {
-  .upgrade-film-receipt { bottom: 3%; }
-}
-@media (orientation: landscape) and (max-height: 460px) and (max-width: 940px) {
-  .upgrade-film { --visible-film: min(100%, max(202px, calc(100svh - 76px))); }
-  .upgrade-film-picture { top: 0; height: var(--visible-film); }
-  .upgrade-film-display, .upgrade-film-receipt {
-    top: calc(var(--visible-film) - 12px); bottom: auto; transform: translateY(-100%);
-  }
-  .upgrade-film-display { left: 3%; max-width: 58%; }
+@media (max-width: 620px) and (orientation: portrait) {
+  .upgrade-film-theatre { width: min(100%, 505px); border-radius: 12px; }
+  .upgrade-film-top { min-height: 41px; }
+  .upgrade-film-picture { aspect-ratio: 1.7; }
+  .upgrade-film-footer { min-height: 126px; grid-template-columns: 1fr; gap: 7px; padding-block: 11px; }
   .upgrade-film-display [data-readout] { gap: 3px; }
-  .upgrade-film-display strong, .client .upgrade-film-caption h2 { font-size: clamp(22px, 4cqw, 32px); }
-  .upgrade-film-receipt { left: auto; right: 3%; max-width: 29%; }
+  .upgrade-film-display strong, .client .upgrade-film-caption h2 { font-size: clamp(23px, 6.65cqw, 32px); }
+  .upgrade-film-receipt {
+    max-width: none; padding: 5px 0 0; border: 0; border-top: 1px solid #bcc2b145; gap: 7px;
+    height: 26px; box-sizing: border-box;
+  }
+  .upgrade-film-receipt img { width: 28px; height: 19px; }
+  .upgrade-film-receipt div { display: flex; align-items: baseline; flex-wrap: wrap; column-gap: 6px; }
+  .upgrade-film-receipt span, .upgrade-film-receipt strong { font-size: 10px; margin: 0; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .upgrade-film-theatre {
+    width: min(1050px, 100%, calc(200dvh + 70px)); grid-template-columns: minmax(0, 1fr) clamp(142px, 23vw, 224px);
+    grid-template-rows: auto 1fr; border-radius: 10px;
+  }
+  .upgrade-film-top { min-height: 34px; grid-column: 1 / -1; }
+  .upgrade-film-controls button { min-height: 32px; }
+  .upgrade-film-footer { grid-template-columns: 1fr; align-content: space-between; min-height: 0; padding: 13px 12px; }
+  .upgrade-film-display strong, .client .upgrade-film-caption h2 { font-size: clamp(19px, 3.5cqw, 30px); }
+  .upgrade-film-stake { gap: 3px; }
+  .upgrade-film-receipt { max-width: none; padding: 6px 0 0; border: 0; border-top: 1px solid #c2b29447; gap: 5px; }
+  .upgrade-film-receipt img { width: 29px; height: 22px; }
+  .upgrade-film-receipt span { font-size: 9px; }
+  .upgrade-film-receipt strong { font-size: 11px; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .upgrade-film-frame::before { background: #101921ee; backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
 @media (prefers-reduced-motion: no-preference) {
   .upgrade-page .chamber-win .target-slot .upgrade-item-art img { animation: upgrade-item-settles 580ms cubic-bezier(.19,.74,.25,1) both; }

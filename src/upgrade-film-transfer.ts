@@ -1,10 +1,10 @@
-import { cameraAt, easeBetween, project, sectorPoint, transferFrame, UPGRADE_CUES } from './upgrade-film-motion.ts';
-import type { UpgradeSprite } from './upgrade-film-stage.ts';
+import { cameraAt, easeBetween, project, rimCenter, sectorPoint, transferFrame, unproject, UPGRADE_CUES } from './upgrade-film-motion.ts';
+import { silhouetteOffset, type UpgradeSprite } from './upgrade-film-stage.ts';
 import type { Skin } from './types';
 
 type Point = { x: number; y: number };
 type Pen = CanvasRenderingContext2D;
-type Project = (x: number, z: number) => Point;
+type Project = (x: number, z: number, depth?: number) => Point;
 type Pose = ReturnType<typeof transferFrame>;
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
@@ -18,8 +18,8 @@ function contact(pen: Pen, at: Project, landing: number, pose: Pose) {
   const mark = (degrees: number, rad: number) => {
     const p = sectorPoint(degrees, rad); return at(p.x, p.z);
   };
-  const tip = mark(landing, 3.17), left = mark(landing - 1.42, 3.54);
-  const right = mark(landing + 1.42, 3.54), spine = mark(landing, 3.51);
+  const tip = mark(landing, 3.19), left = mark(landing - 1.2, 3.49);
+  const right = mark(landing + 1.2, 3.49), spine = mark(landing, 3.47);
   pen.save(); pen.globalAlpha = pose.contact;
   for (const direction of [-1, 1]) {
     const end = landing + direction * 28 * pose.charge;
@@ -67,58 +67,110 @@ function litSprite(layer: HTMLCanvasElement, skin: UpgradeSprite, swipe: number)
   paint.globalCompositeOperation = 'source-over'; return layer;
 }
 
-function drawItem(pen: Pen, sprite: HTMLCanvasElement, pos: Point, width: number, angle: number, alpha: number, tilt = 1) {
+function drawItem(pen: Pen, sprite: HTMLCanvasElement, pos: Point, width: number, angle: number, alpha: number, tilt = 1, defocus = 0) {
   if (width < 1 || alpha <= 0) return;
   const height = width * sprite.height / sprite.width;
   pen.save(); pen.globalAlpha = alpha; pen.translate(pos.x, pos.y); pen.rotate(angle); pen.scale(tilt, 1);
-  pen.shadowColor = '#060d12bd'; pen.shadowBlur = Math.min(9, width * .026); pen.shadowOffsetY = Math.min(5, height * .04);
+  if (defocus > .25) pen.filter = 'blur(' + defocus + 'px)';
   pen.drawImage(sprite, -width / 2, -height / 2, width, height); pen.restore();
+}
+
+function matShadow(pen: Pen, at: Project, length: number, contactX: number, strength: number) {
+  if (strength <= 0) return;
+  const center = at(0, .001), lateral = at(1, .001), back = at(0, .001, 1);
+  pen.save();
+  path(pen, [at(-.70, .001, -.22), at(.70, .001, -.22), at(.70, .001, .22), at(-.70, .001, .22)]);
+  pen.clip();
+  pen.transform(lateral.x - center.x, lateral.y - center.y, back.x - center.x, back.y - center.y, center.x, center.y);
+  function pool(x: number, span: number, depth: number, opacity: number) {
+    pen.save(); pen.translate(x, .012); pen.scale(span, depth);
+    const shade = pen.createRadialGradient(0, 0, 0, 0, 0, 1);
+    shade.addColorStop(0, 'rgba(3,8,9,' + strength * opacity + ')');
+    shade.addColorStop(.5, 'rgba(4,9,10,' + strength * opacity * .61 + ')');
+    shade.addColorStop(1, 'rgba(4,9,10,0)');
+    pen.fillStyle = shade; pen.fillRect(-1, -1, 2, 2); pen.restore();
+  }
+  pool(contactX, length * .58, .19, .6);
+  pool(contactX, length * .22, .075, .94);
+  pen.restore();
+}
+
+function displayRest(pen: Pen, at: Project, x: number, depth: number, height: number, opacity: number) {
+  if (height <= .006 || opacity <= 0) return;
+  pen.save(); pen.globalAlpha = opacity;
+  function sleeve(low: number, high: number, radius: number, dark: string, light: string) {
+    if (high <= low) return;
+    const a = at(x-radius, low, depth), b = at(x+radius, low, depth);
+    const shade = pen.createLinearGradient(a.x, a.y, b.x, b.y);
+    shade.addColorStop(0, dark); shade.addColorStop(.30, light); shade.addColorStop(.62, dark); shade.addColorStop(1, '#536065');
+    path(pen, [a, b, at(x+radius, high, depth), at(x-radius, high, depth)]); pen.fillStyle = shade; pen.fill();
+    const lip = [];
+    for (let j = 0; j < 16; j++) {
+      const t = j * Math.PI / 8;
+      lip.push(at(x + Math.cos(t)*radius, high, depth + Math.sin(t)*radius));
+    }
+    path(pen, lip); pen.fillStyle = light; pen.fill();
+  }
+  const shoulder = Math.min(height * .51, .085);
+  sleeve(0, .011, .036, '#393936', '#a79b7f');
+  sleeve(.008, shoulder, .014, '#394852', '#b9c6c5');
+  sleeve(shoulder - .003, height, .008, '#49565a', '#d5d7c6');
+  sleeve(height - .008, height + .001, .021, '#252c2e', '#596262');
+  pen.restore();
 }
 
 export function makeUpgradeTransfer(canvas: HTMLCanvasElement, windowFrame: HTMLElement, field: HTMLElement,
   target: Skin, award: Skin, landing: number, tier: number, type: HTMLImageElement, art: Map<string, UpgradeSprite>) {
   const pen = canvas.getContext('2d'), glaze = document.createElement('canvas');
-  let width = 0, height = 0, windowHeight = 0, plateWidth = 0, plateHeight = 0, offsetY = 0, ratio = 1;
-  let fieldBox = field.getBoundingClientRect(), receiver: DOMRect | undefined, receivingImage: HTMLImageElement | null = null;
-  function measureReceiver() {
-    const img = field.parentElement?.querySelector<HTMLImageElement>('.target-slot .upgrade-item-art img') ?? null;
-    fieldBox = field.getBoundingClientRect();
-    receivingImage = img; receiver = img?.getBoundingClientRect();
-  }
-  function resize() {
-    width = field.clientWidth; height = field.clientHeight; windowHeight = windowFrame.clientHeight;
-    plateWidth = Math.max(width, windowHeight * 2); plateHeight = plateWidth / 2;
-    offsetY = windowFrame.offsetTop + (windowHeight - plateHeight) * .48;
-    ratio = Math.min(2, window.devicePixelRatio || 1, 2500 / Math.max(1, width));
-    canvas.width = Math.max(1, Math.round(width * ratio)); canvas.height = Math.max(1, Math.round(height * ratio));
-    measureReceiver();
+  let picture = windowFrame.getBoundingClientRect(), receiver: DOMRect | undefined, receivingImage: HTMLImageElement | null = null;
+  let left = 0, top = 0, plateWidth = 0, plateHeight = 0, ratio = 1;
+  function resize(followPrize = false) {
+    picture = windowFrame.getBoundingClientRect();
+    receivingImage = field.parentElement?.querySelector<HTMLImageElement>('.target-slot .upgrade-item-art img') ?? null;
+    receiver = receivingImage?.getBoundingClientRect();
+    if (followPrize && receiver && (receiver.bottom < 20 || receiver.top > window.innerHeight - 20)) {
+      receivingImage?.scrollIntoView({ block: 'center', behavior: 'instant' });
+      receiver = receivingImage?.getBoundingClientRect();
+    }
+    const viewport = field.getBoundingClientRect();
+    // Keep the canvas to the optical frame and the actual flight path, even on a 4K screen.
+    left = Math.max(viewport.left, Math.floor(Math.min(picture.left, receiver?.left ?? picture.left) - 8));
+    top = Math.max(viewport.top, Math.floor(Math.min(picture.top, receiver?.top ?? picture.top) - 74));
+    const width = Math.max(1, Math.ceil(Math.min(viewport.right, Math.max(picture.right, receiver?.right ?? picture.right) + 8) - left));
+    const height = Math.max(1, Math.ceil(Math.min(viewport.bottom, Math.max(picture.bottom, receiver?.bottom ?? picture.bottom) + 12) - top));
+    ratio = Math.min(2, window.devicePixelRatio || 1, 2560 / width);
+    Object.assign(canvas.style, { left: left - viewport.left + 'px', top: top - viewport.top + 'px', width: width + 'px', height: height + 'px' });
+    canvas.width = Math.round(width * ratio); canvas.height = Math.round(height * ratio);
+    plateWidth = Math.max(picture.width, picture.height * 2); plateHeight = plateWidth / 2;
   }
   function paint(t: number, pose: Pose, fallback: boolean) {
-    if (!pen || !width || !height) return;
-    pen.setTransform(ratio, 0, 0, ratio, 0, 0); pen.clearRect(0, 0, width, height); pen.imageSmoothingQuality = 'high';
-    const m = cameraAt(t, pose.shot, fallback);
-    const at: Project = (x, z) => {
-      const p = project(m, x, z);
-      return { x: (width - plateWidth) / 2 + p.x * plateWidth, y: offsetY + p.y * plateHeight };
-    };
+    if (!pen || !plateWidth) return;
+    if (pose.delivery > 0 && !receivingImage?.isConnected) resize(true);
+    pen.setTransform(1, 0, 0, 1, 0, 0); pen.clearRect(0, 0, canvas.width, canvas.height);
+    pen.setTransform(ratio, 0, 0, ratio, -left * ratio, -top * ratio); pen.imageSmoothingQuality = 'high';
+    const camera = cameraAt(t, pose.shot, fallback);
+    const originX = picture.left + (picture.width - plateWidth) / 2, originY = picture.top + (picture.height - plateHeight) / 2;
+    const pixel = (p: Point) => ({ x: originX + p.x * plateWidth, y: originY + p.y * plateHeight });
+    const at: Project = (x, z, depth = 0) => pixel(project(camera, x, z, depth));
+    const hub = pixel(rimCenter(camera));
     if (pose.shot === 0) { contact(pen, at, landing, pose); return; }
-    const core = at(0, .06);
-    const unit = Math.hypot(at(1, .06).x - core.x, at(1, .06).y - core.y);
-    const cameraAngle = Math.atan2(at(1, .06).y - core.y, at(1, .06).x - core.x);
+    const core = at(0, 0), right = at(1, 0);
+    const unit = Math.hypot(right.x - core.x, right.y - core.y), cameraAngle = Math.atan2(right.y - core.y, right.x - core.x);
     const goal = art.get(target.image);
     if (pose.target > 0 && goal) {
       const growth = easeBetween(UPGRADE_CUES.runway, UPGRADE_CUES.rotor + .12, t);
-      const maxWidth = Math.min(width * .72, windowHeight * .43 * goal.canvas.width / goal.canvas.height);
-      const displayWidth = Math.min(maxWidth, unit * (2.45 + .72 * growth));
-      drawItem(pen, litSprite(glaze, goal, easeBetween(2.04, 2.65, t)), core,
-        displayWidth, cameraAngle - .048 * (1 - growth), pose.target, .87 + .13 * growth);
+      const size = Math.min(unit * (2.72 + .38 * growth), picture.width * .57, picture.height * .39 * goal.canvas.width / goal.canvas.height);
+      const angle = cameraAngle - .025 * (1 - growth), tilt = .94 + .06 * growth;
+      const offset = silhouetteOffset(goal.outline, size, size * goal.canvas.height / goal.canvas.width, angle, tilt);
+      drawItem(pen, litSprite(glaze, goal, easeBetween(2.04, 2.65, t)), { x: hub.x - offset.x, y: hub.y - offset.y },
+        size, angle, pose.target, tilt);
     }
-    if (pose.mint > 0) {
-      const lift = easeBetween(UPGRADE_CUES.multiplier - .08, UPGRADE_CUES.multiplier + .29, t);
-      const size = Math.min(unit * 2.75, width * .50, windowHeight * .52);
-      pen.save(); pen.translate(core.x, core.y); pen.rotate(cameraAngle - (1 - lift) * .16);
-      pen.globalAlpha = pose.mint; pen.scale(.67 + .33 * lift, .76 + .24 * lift);
-      pen.shadowColor = '#170f0a'; pen.shadowBlur = 14; pen.shadowOffsetY = 4;
+    if (pose.mint > 0 && pose.shot === 2) {
+      const press = easeBetween(UPGRADE_CUES.multiplier - .08, UPGRADE_CUES.multiplier + .29, t);
+      const size = Math.min(unit * 2.65, picture.width * .36, picture.height * .43);
+      pen.save(); pen.translate(hub.x, hub.y); pen.rotate(cameraAngle - (1 - press) * .085);
+      pen.globalAlpha = pose.mint; pen.scale(.88 + .12 * press, .92 + .08 * press);
+      pen.shadowColor = '#170f0a'; pen.shadowBlur = Math.min(11, size * .05); pen.shadowOffsetY = 2.5;
       if (type.naturalWidth && type.complete) {
         const h = size * type.naturalHeight / type.naturalWidth;
         pen.drawImage(type, -size * .5, -h * .5, size, h);
@@ -129,30 +181,40 @@ export function makeUpgradeTransfer(canvas: HTMLCanvasElement, windowFrame: HTML
       pen.restore();
     }
     if (pose.shot !== 3) return;
-    lightBand(pen, core, Math.min(width * .53, windowHeight * 1.12), pose.impulse);
+    // This shot is registered to the rising suede mat on the front bench, in metres.
+    lightBand(pen, core, unit * .69, pose.impulse * .7);
     const prize = art.get(award.image);
     if (!prize) return;
-    const entry = pose.lift, fly = pose.delivery;
-    const heroWidth = Math.min(width * .81, unit * 9.65, windowHeight * .48 * prize.canvas.width / prize.canvas.height);
-    const startWidth = heroWidth * (.42 + .58 * entry + .055 * Math.sin(entry * Math.PI));
-    const hovering = Math.sin(Math.min(3, t - UPGRADE_CUES.award) * 1.4);
-    const center = { x: core.x + (1 - entry) * unit * .24, y: core.y + (1 - entry) * unit * .36 - unit * .04 * hovering };
-    const angle = cameraAngle - .17 * (1 - entry) - .052 * hovering;
-    let x = center.x, y = center.y, displayWidth = startWidth, rot = angle;
-    if (fly > 0) {
-      if (!receivingImage?.isConnected) measureReceiver();
-      if (receiver) {
-        const fit = Math.min(receiver.width / prize.sourceWidth, receiver.height / prize.sourceHeight);
-        const destX = receiver.x - fieldBox.x + receiver.width / 2 + (prize.nativeCenterX - prize.sourceWidth / 2) * fit;
-        const destY = receiver.y - fieldBox.y + receiver.height / 2 + (prize.nativeCenterY - prize.sourceHeight / 2) * fit;
-        x = lerp(x, destX, fly); y = lerp(y, destY, fly) - Math.sin(fly * Math.PI) * Math.min(34, height * .075);
-        displayWidth = lerp(startWidth, prize.croppedWidth * fit, fly);
-        rot = lerp(rot, -prize.angle * Math.PI / 180, fly);
-      }
+    const aspect = prize.canvas.width / prize.canvas.height;
+    const blade = /knife|bayonet|karambit|daggers/i.test(award.weapon);
+    const length = Math.min(blade ? .89 : 1.17, .47 * aspect);
+    const wide = unit * length, high = wide / aspect;
+    const fly = pose.delivery, settle = easeBetween(UPGRADE_CUES.award + .06, UPGRADE_CUES.award + .88, t);
+    const displayAngle = cameraAngle - .048 * (1 - settle) - .019;
+    const c = Math.cos(displayAngle), s = Math.sin(displayAngle);
+    const offset = silhouetteOffset(prize.outline, wide, high, displayAngle);
+    let x = hub.x - offset.x, y = hub.y - offset.y, displayWidth = wide, rot = displayAngle;
+    const reveal = easeBetween(UPGRADE_CUES.award + .055, UPGRADE_CUES.award + .62, t);
+    const restTravel = easeBetween(UPGRADE_CUES.award + .015, UPGRADE_CUES.award + .46, t) * (1 - easeBetween(0, .55, fly));
+    const matCenter = unproject(camera, (hub.x - originX) / plateWidth, (hub.y - originY) / plateHeight);
+    matShadow(pen, at, length, matCenter.x, reveal * .52 * (1 - easeBetween(0, .5, fly)) * pose.background);
+    for (const rest of prize.rests) {
+      const u = x + rest.x * wide * c - rest.y * high * s;
+      const v = y + rest.x * wide * s + rest.y * high * c;
+      const support = unproject(camera, (u - originX) / plateWidth, (v - originY) / plateHeight);
+      displayRest(pen, at, support.x, 0, Math.max(0, support.z) * restTravel, pose.background);
     }
-    const glint = easeBetween(UPGRADE_CUES.award + .04, UPGRADE_CUES.award + .67, t);
-    drawItem(pen, litSprite(glaze, prize, glint), {x, y}, displayWidth, rot,
-      easeBetween(UPGRADE_CUES.award, UPGRADE_CUES.award + .17, t) * (1 - easeBetween(.72, 1, fly)), .56 + .44 * entry);
+    if (fly > 0 && receiver) {
+      const fit = Math.min(receiver.width / prize.sourceWidth, receiver.height / prize.sourceHeight);
+      const destX = receiver.x + receiver.width / 2 + (prize.nativeCenterX - prize.sourceWidth / 2) * fit;
+      const destY = receiver.y + receiver.height / 2 + (prize.nativeCenterY - prize.sourceHeight / 2) * fit;
+      x = lerp(x, destX, fly); y = lerp(y, destY, fly) - Math.sin(fly * Math.PI) * Math.min(52, picture.height * .13);
+      displayWidth = wide * Math.pow(Math.max(.002, prize.croppedWidth * fit / wide), fly);
+      rot = lerp(rot, -prize.angle * Math.PI / 180, fly);
+    }
+    const sweep = easeBetween(UPGRADE_CUES.award + .12, UPGRADE_CUES.award + .95, t);
+    drawItem(pen, litSprite(glaze, prize, sweep), { x, y }, displayWidth, rot,
+      reveal * (1 - easeBetween(.72, 1, fly)), 1, (1 - settle) * Math.min(4, picture.width * .0035));
   }
   return { resize, paint };
 }
