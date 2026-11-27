@@ -1,5 +1,11 @@
 # Источники ресурсов LudoDrop
 
+Золотой апгрейд снят четырьмя камерами в смоделированном в Blender индукционном зале. Указатель привязан к реальному углу остановки колеса. Ротор, раскрывающийся знак ранга и литые цифры множителей отрендерены в 3D. На верхнем ободе использован рельеф по исходному портрету Гейба. Выбранную цель и выигранный предмет браузер берёт из текущего раунда. [Кинематографическая сцена](upgrade-film/induction.mp4)
+
+Для сцены написана отдельная партитура. Виолончели и валторны записаны в VSCO 2 Community Edition. Удары наковальни, гонга, литавр и трубчатого колокола, а также арфа, тарелка, вибрафон и большой барабан взяты из VCSL. Для механических акцентов использованы записи Kenney. Исходные сэмплы доступны по CC0. [VSCO 2 Community Edition](https://github.com/sgossner/VSCO-2-CE) · [Virtual Community Sample Library](https://github.com/sgossner/VCSL) · [Kenney Casino Audio](https://opengameart.org/content/54-casino-sound-effects-cards-dice-chips) · [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds)
+
+В исходном архивном монтаже «Time Lock» использован фрагмент выступления Гейба Ньюэлла на LinuxCon 2013. Автор записи — The Linux Foundation. Фрагмент кадрирован, переведён в монохром и смонтирован без исходного звука. [Оригинальная запись](https://commons.wikimedia.org/wiki/File:LinuxCon_%26_CloudOpen_North_America_2013_-_Gabe_Newell,_Valve.webm) · [Лицензия CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)
+
 Миниатюры каталога скомпонованы из изображений контейнеров ниже и кадров локальных 3D-моделей. У исходных изображений убраны прозрачные поля. Предметы приведены к одному холсту 576 × 360, с сохранением пропорций. [Миниатюры каталога](cases/catalog/)
 
 Для витрины «Неоновый» подготовлен прозрачный рендер локальной 3D-модели AK-47 с игровой текстурой Neon Rider. На заднем плане использован кадр Dust II из коллекции карт ниже. [Рендер для витрины](cases/features/neon-rider-studio.webp) · [3D-модель](unseal/armory/ak-neon-rider.glb)
