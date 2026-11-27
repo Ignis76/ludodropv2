@@ -42,22 +42,17 @@ function spinTimeline(duration: number, poses: SpinPose[]) {
   return { duration, landing: poses[poses.length - 1].angle, keyframes, tickTimes };
 }
 
-export function buildUpgradeSpin(chance: number, won: boolean, fast: boolean, rng: () => number, suspense = true) {
-  const sector = 360 * chance;
-  const availableArc = won ? sector : 360 - sector;
-  if (!Number.isFinite(chance) || chance < 0 || chance > 1 || availableArc === 0) {
-    throw new RangeError('Невозможный сектор апгрейда');
+export function buildUpgradeSpin(target: number, fast: boolean, rng: () => number, suspense = true) {
+  if (!Number.isFinite(target) || target < 0 || target >= 360) {
+    throw new RangeError('Неверный угол остановки апгрейда');
   }
 
   const duration = Math.round(fast ? 900 + 150 * rng() : 1450 + 200 * rng());
   const accelerationEnd = suspense ? .055 + .045 * rng() : .035 + .03 * rng();
-  const arcStart = 180 - sector / 2 + (won ? 0 : sector);
-  const inset = Math.min(2, availableArc * .08);
-  const target = arcStart + inset + (availableArc - 2 * inset) * rng();
 
   const launch: SpinPose = { offset: 0, angle: 0, easing: launchEase };
   if (!suspense) {
-    const landing = (fast ? 2 : 3) * 360 + target % 360;
+    const landing = (fast ? 2 : 3) * 360 + target;
     // Match the launch's exit speed to the initial slope of the braking curve.
     const launchAngle = landing * accelerationEnd;
     return spinTimeline(duration, [

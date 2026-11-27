@@ -6,6 +6,7 @@ import { WalletDialog } from './wallet';
 import { OFFICE_PROMO_CODE, officePromoStatus } from './wallet-offer';
 import { getAudioVolume, preloadCaseSounds, setAudioVolume, sound } from './audio';
 import { Empty, Modal, money } from './components';
+import { GOLD_UPGRADE } from './engine';
 import { CasePage } from './case-pages';
 import { MinesPage, UpgradePage } from './games';
 import { ContractsPage } from './contracts';
@@ -69,11 +70,12 @@ function Shell() {
   // Case rewards are saved before their presentation starts. Other modes retain their round lock.
   const navigationLocked = busy && route.name !== 'case';
   const drawingResult = busy && (route.name === 'upgrade' || route.name === 'contracts');
-  const revealedHistory = useRef(player.history);
-  useEffect(() => {
-    if (!drawingResult) revealedHistory.current = player.history;
-  }, [drawingResult, player.history]);
-  const historyEntries = drawingResult ? revealedHistory.current : player.history;
+  const revealedPlayer = useRef(player);
+  useLayoutEffect(() => {
+    if (!drawingResult) revealedPlayer.current = player;
+  }, [drawingResult, player]);
+  const historyEntries = drawingResult ? revealedPlayer.current.history : player.history;
+  const shownBalance = busy && route.name === 'upgrade' ? revealedPlayer.current.balance : player.balance;
   useEffect(() => { void preloadCaseSounds(); }, []);
   const showRoute = useCallback((next: ReturnType<typeof readRoute>) => {
     // Release the opening animation lock in the same render as the route change.
@@ -102,8 +104,8 @@ function Shell() {
     <a className="skip-link" href="#main-content" onClick={e => { e.preventDefault(); document.getElementById('main-content')?.focus(); }}>Перейти к содержимому</a>
     <Masthead active={active} go={go} onSound={() => setModal('sound')} tools={<>
       <button className="bar-audio" onClick={() => setModal('sound')} aria-label="Громкость и звук">{soundIcon}</button>
-      <button className="balance-control" aria-label={'Баланс ' + money(player.balance) + ' кредитов. Пополнить'} onClick={() => setModal('wallet')}>
-        <Balance amount={player.balance}/><i><Plus size={17} strokeWidth={2.6}/></i>
+      <button className="balance-control" aria-label={'Баланс ' + money(shownBalance) + ' кредитов. Пополнить'} onClick={() => setModal('wallet')}>
+        <Balance amount={shownBalance}/><i><Plus size={17} strokeWidth={2.6}/></i>
       </button>
       <button className="profile-go" aria-label="Профиль игрока" aria-current={active === 'profile' ? 'page' : undefined} onClick={() => go('profile')}>
         <span className="profile-badge"><img src={'/assets/maps/' + player.profile.emblem + '-emblem.webp'} width="32" height="32" alt=""/></span><span className="profile-caption"><small>Профиль</small><b className="profile-name">{player.profile.nickname}</b></span>
@@ -132,10 +134,15 @@ function Shell() {
       </div>
     </div>
     {modal === 'sound' && <Modal icon={<Volume2/>} title="Настройки звука" onClose={() => setModal(null)}><div className="sound-panel"><button onClick={() => update(p => ({ ...p, sound: !p.sound }))} aria-pressed={player.sound}>{soundIcon}{player.sound ? 'Звук включён' : 'Звук выключен'}</button><label><span>Громкость <b>{Math.round(volume * 100)}%</b></span><input type="range" min="0" max="1" step=".01" value={volume} onChange={e => { const n = Number(e.target.value); setAudioVolume(n); setVolume(n); }} onPointerUp={() => sound('click')}/></label></div></Modal>}
-    {(modal === 'wallet' || modal === 'promo-wallet') && <WalletDialog
+    {(modal === 'wallet' || modal === 'promo-wallet') && <WalletDialog balance={shownBalance}
       initialCode={modal === 'promo-wallet' ? OFFICE_PROMO_CODE : undefined} onClose={() => setModal(null)}/>}
     {modal === 'history' && <Modal icon={<History/>} title="История действий" onClose={() => setModal(null)}>{historyEntries.length ? <div className="history-list">{historyEntries.map(h => <div key={h.id}><span><strong>{h.title}</strong><small>{new Date(h.time).toLocaleString('ru-RU')}</small></span><b data-credit={Math.sign(h.amount)}>{h.amount > 0 ? '+' : ''}{h.amount ? money(h.amount) : '·'}</b></div>)}</div> : <Empty title="История пока пуста" text="Здесь появятся открытия, продажи и результаты раундов."/>}</Modal>}
-    {modal === 'help' && <Modal icon={<CircleHelp/>} title="Правила игры" onClose={() => setModal(null)}><div className="rules"><p>Начальный баланс — 10 000 виртуальных кредитов. Для первых игровых раундов в инвентаре есть шесть стартовых скинов. Кнопка «+» пополняет баланс бесплатно.</p><h3>Открытие контейнеров</h3><p>Выбери оружейный кейс, капсулу с наклейками или пакет с пином и посмотри вероятности под лентой. При открытии игра списывает стоимость и выдаёт предметы в инвентарь. Можно уйти со страницы, пока идёт анимация. Быстрый режим меняет длительность анимации. Каждый контейнер в серии открывается независимо.</p><h3>Инвентарь и режимы</h3><p>Кредитами можно открыть контейнер или повысить шанс в апгрейде. В рулетке, минах и краше ставь скин из инвентаря. При выигрыше ты получишь самый дорогой скин в пределах выигранной суммы, а остаток зачислится на баланс. В апгрейде и контрактах обменивай предметы, а продать их за кредиты можно в профиле.</p><h3>Сохранение</h3><p>Баланс, предметы, история и настройки сохраняются на этом устройстве. Очистка данных сайта сбрасывает игровой профиль. Все цены выражены в виртуальных кредитах.</p></div></Modal>}
+    {modal === 'help' && <Modal icon={<CircleHelp/>} title="Правила игры" onClose={() => setModal(null)}><div className="rules"><p>Начальный баланс — 10 000 виртуальных кредитов. Для первых игровых раундов в инвентаре есть шесть стартовых скинов. Кнопка «+» пополняет баланс бесплатно.</p><h3>Открытие контейнеров</h3><p>Выбери оружейный кейс, капсулу с наклейками или пакет с пином и посмотри вероятности под лентой. При открытии игра списывает стоимость и выдаёт предметы в инвентарь. Можно уйти со страницы, пока идёт анимация. Быстрый режим меняет длительность анимации. Каждый контейнер в серии открывается независимо.</p><h3>Инвентарь и режимы</h3><p>Кредитами можно открыть контейнер или повысить шанс в апгрейде. В рулетке, минах и краше ставь скин из инвентаря. При выигрыше ты получишь самый дорогой скин в пределах выигранной суммы, а остаток зачислится на баланс. В апгрейде и контрактах обменивай предметы, а продать их за кредиты можно в профиле.</p>
+      <h3>Золотой апгрейд</h3>
+      <p>До прокрутки колесо показывает шанс на выбранный скин. В {GOLD_UPGRADE.frequency * 100}% прокруток появляется золотая зона. Тогда число в центре меняется на шанс золотого дропа — {GOLD_UPGRADE.hitChance * 100}%. Если золото не выпало, у тебя сохраняется обычный шанс выиграть выбранный скин.</p>
+      <p>За попадание в золото выпадает множитель от ×{GOLD_UPGRADE.minMultiplier} до ×{GOLD_UPGRADE.maxMultiplier}. Все четыре множителя равновероятны. Множитель применяется к цене выбранной цели. Выигранный скин поступит в инвентарь, а остаток суммы — на баланс.</p>
+      <p>При попадании в золотую зону на шкале апгрейда выбранная цель превращается в выигранный скин.</p>
+      <h3>Сохранение</h3><p>Баланс, предметы, история и настройки сохраняются на этом устройстве. Очистка данных сайта сбрасывает игровой профиль. Все цены выражены в виртуальных кредитах.</p></div></Modal>}
   </div>;
 }
 

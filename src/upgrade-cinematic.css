@@ -1,0 +1,146 @@
+/* The film shares the footprint and final inventory slot of the live upgrade. */
+.client .upgrade-page .upgrade-stage { position: relative; isolation: isolate; }
+dialog.upgrade-film {
+  position: absolute; inset: 0; z-index: 12; width: 100%; height: 100%; max-width: none; max-height: none;
+  box-sizing: border-box; margin: 0; padding: 0; border: 0; border-radius: inherit;
+  overflow: hidden; background: transparent; color: #fbf6ed; font-family: inherit; text-shadow: none; color-scheme: dark;
+}
+.upgrade-film:not([open]), .upgrade-film [hidden] { display: none !important; }
+.client:has(.upgrade-film[open]) .drop-launcher { visibility: hidden; }
+.upgrade-film-frame { position: absolute; inset: 0; isolation: isolate; container-type: size; }
+.upgrade-film-frame::before {
+  content: ''; position: absolute; inset: 0; background: #10181b; opacity: var(--scene, 1);
+}
+.upgrade-film-picture, .upgrade-film-glass, .upgrade-film-grade { position: absolute; inset: 0; width: 100%; height: 100%; }
+.upgrade-film-picture { overflow: hidden; opacity: var(--scene, 1); }
+.upgrade-film-picture img, .upgrade-film-picture video {
+  position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 48%;
+}
+.upgrade-film.film-fallback video { visibility: hidden; }
+.upgrade-film-grade {
+  pointer-events: none; opacity: var(--scene, 1);
+  background:
+    linear-gradient(0deg, #080d11bd 0%, #0a101356 17%, transparent 39%),
+    linear-gradient(113deg, #08121774 0%, transparent 34%, transparent 73%, #11131845),
+    linear-gradient(180deg, #08101578, transparent 21%);
+}
+.upgrade-film-glass { display: block; pointer-events: none; }
+.upgrade-film .coin { display: inline-flex; align-items: center; gap: .32em; color: inherit; font-size: inherit; white-space: nowrap; }
+.upgrade-film .coin svg { width: .85em; height: .85em; color: inherit; }
+.upgrade-film-top {
+  position: absolute; top: clamp(10px, 4cqh, 22px); left: 2.8%; right: 2.4%; display: flex; align-items: center;
+  justify-content: space-between; pointer-events: none; opacity: var(--scene, 1);
+}
+.upgrade-film-top > span, .upgrade-film-controls button {
+  display: inline-flex; align-items: center; gap: 7px; font-family: inherit; line-height: 1; font-weight: 650;
+}
+.upgrade-film-top > span {
+  padding: 7px 10px 7px 8px; border-radius: 5px; background: #0911159c;
+  border: 1px solid #d2b9864d; color: #f6dfa9; font-size: clamp(11px, 1.06cqw, 15px);
+}
+.upgrade-film-top > span svg { color: #f4bf68; }
+.upgrade-film-controls { display: flex; gap: 7px; pointer-events: auto; }
+.upgrade-film-controls button {
+  min-height: 36px; padding: 0 11px; border: 1px solid #b4bdba48; border-radius: 6px; background: #10181cd6;
+  color: #edece7; font-size: 12px; cursor: pointer;
+}
+.upgrade-film-controls button:hover { background: #344045; }
+.upgrade-film-controls button:focus-visible { outline: 2px solid #ffdf9c; outline-offset: 2px; }
+.upgrade-film-display {
+  position: absolute; left: 3.25%; bottom: 6.2%; margin: 0; width: max-content; max-width: min(43%, 640px);
+  text-align: left; color: #fff9ee; opacity: var(--legend, 1); pointer-events: none;
+  text-shadow: 0 2px 7px #0c1115b3, 0 0 24px #0b121753;
+}
+.upgrade-film-display [data-readout] {
+  display: grid; align-content: end; justify-items: start; gap: clamp(4px, 1.25cqh, 9px);
+}
+.upgrade-film-eyebrow, .upgrade-film-multiplier {
+  display: inline-flex; align-items: center; gap: .67em; margin: 0; color: #e1ded5;
+  font-weight: 620; line-height: 1.12; font-size: clamp(12px, 1.17cqw, 18px);
+}
+.upgrade-film-display strong, .client .upgrade-film-caption h2 {
+  display: block; margin: 0; padding: 0; font-family: inherit; color: #fff9ee; line-height: .99;
+  font-size: clamp(25px, min(4.05cqw, 11cqh), 65px); font-weight: 720; letter-spacing: -.048em; text-wrap: balance;
+}
+.upgrade-film-stake { display: flex; align-items: center; gap: clamp(5px, 1.2cqw, 15px); flex-wrap: wrap; }
+.upgrade-film-thumbs { display: flex; align-items: center; height: clamp(26px, 7.9cqh, 44px); }
+.upgrade-film-thumbs img { width: clamp(28px, 3.5cqw, 50px); height: 100%; object-fit: contain; filter: drop-shadow(0 2px 3px #000a); }
+.upgrade-film-thumbs img + img { margin-left: -4px; }
+.upgrade-film-amount, .upgrade-film-base, .upgrade-film-value, .upgrade-film-equation {
+  display: inline-flex; align-items: baseline; flex-wrap: wrap; gap: .18em .62em;
+  color: #f5d398; font-size: clamp(13px, min(1.55cqw, 4.8cqh), 22px);
+  font-weight: 660; font-variant-numeric: tabular-nums; line-height: 1.2;
+}
+.upgrade-film-value small, .upgrade-film-amount small { color: #e1dfd7; font-weight: 550; font-size: .78em; white-space: nowrap; }
+.upgrade-film-equation { opacity: var(--gain, 0); }
+.upgrade-film-equation i { font-style: normal; color: #ebe6db; font-weight: 500; }
+.upgrade-film[data-minted=true] .upgrade-film-base { display: none; }
+.upgrade-film-multiplier b {
+  padding: .18em .42em; background: #523711e0; color: #ffe3a2; border: 1px solid #e6c076a3;
+  border-radius: 4px; font-size: .93em; line-height: 1;
+}
+.upgrade-film-receipt {
+  position: absolute; right: 3%; bottom: 7%; display: none; align-items: center; gap: 8px;
+  max-width: 30%; padding: 6px 10px; background: linear-gradient(110deg,#111b1cbb,#12181888);
+  border-left: 1px solid #f1cc86; color: #ecebe4; opacity: var(--legend, 1);
+}
+.upgrade-film[data-shot=award] .upgrade-film-receipt { display: flex; }
+.upgrade-film-receipt img { width: clamp(36px, 4.4cqw, 64px); height: 34px; object-fit: contain; }
+.upgrade-film-receipt div { min-width: 0; }
+.upgrade-film-receipt span, .upgrade-film-receipt strong { display: block; line-height: 1.2; }
+.upgrade-film-receipt span { color: #c4cac8; font-size: 10px; }
+.upgrade-film-receipt strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: clamp(12px, 1.1cqw, 16px); }
+.client .upgrade-page :is(.chamber-receiving, .chamber-gold) .target-slot .upgrade-item-art > img { animation: none; }
+.client .upgrade-page .chamber-receiving .target-slot .upgrade-item-art > img { opacity: var(--native-prize, 0); }
+@container (max-width: 700px) and (max-aspect-ratio: 1.45) {
+  .upgrade-film-picture, .upgrade-film-display {
+    --film-head: clamp(42px, 9cqh, 54px);
+    --film-window: min(53cqh, 76cqw);
+  }
+  .upgrade-film-picture { top: var(--film-head); height: var(--film-window); }
+  .upgrade-film-picture::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(0deg, #10181b, transparent 12%);
+  }
+  .upgrade-film-grade {
+    background: radial-gradient(ellipse at 15% 120%, #71553540, transparent 52%),
+      linear-gradient(180deg, #07101270, transparent 16%);
+  }
+  .upgrade-film-display {
+    max-width: 94%; width: 92%; left: 5%; bottom: auto;
+    top: calc(var(--film-head) + var(--film-window) + clamp(9px, 3.5cqh, 23px));
+  }
+  .upgrade-film-display [data-readout] { gap: 6px; }
+  .upgrade-film-display strong, .client .upgrade-film-caption h2 { font-size: clamp(23px, min(7.9cqw, 6.1cqh), 35px); line-height: 1.03; }
+  .upgrade-film-top { left: 10px; right: 10px; top: 9px; }
+  .upgrade-film-controls button { min-height: 36px; font-size: 11px; }
+  .upgrade-film-thumbs { height: 29px; }
+  .upgrade-film-thumbs img { width: 33px; }
+  .upgrade-film-receipt {
+    left: 5%; right: 5%; max-width: none; bottom: 3.4%; padding: 8px 0 0; border: 0;
+    border-top: 1px solid #bba77852; background: none;
+  }
+  .upgrade-film-receipt img { width: 34px; height: 24px; }
+}
+@container (max-width: 350px) and (max-aspect-ratio: 1.45) {
+  .upgrade-film-receipt { bottom: 3%; }
+}
+@media (orientation: landscape) and (max-height: 460px) and (max-width: 940px) {
+  .upgrade-film { --visible-film: min(100%, max(202px, calc(100svh - 76px))); }
+  .upgrade-film-picture { top: 0; height: var(--visible-film); }
+  .upgrade-film-display, .upgrade-film-receipt {
+    top: calc(var(--visible-film) - 12px); bottom: auto; transform: translateY(-100%);
+  }
+  .upgrade-film-display { left: 3%; max-width: 58%; }
+  .upgrade-film-display [data-readout] { gap: 3px; }
+  .upgrade-film-display strong, .client .upgrade-film-caption h2 { font-size: clamp(22px, 4cqw, 32px); }
+  .upgrade-film-receipt { left: auto; right: 3%; max-width: 29%; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .upgrade-page .chamber-win .target-slot .upgrade-item-art img { animation: upgrade-item-settles 580ms cubic-bezier(.19,.74,.25,1) both; }
+  @keyframes upgrade-item-settles {
+    0% { opacity: .68; translate: -8px 0; scale: .96; }
+    55% { opacity: 1; scale: 1.025; }
+    100% { opacity: 1; translate: 0 0; scale: 1; }
+  }
+}

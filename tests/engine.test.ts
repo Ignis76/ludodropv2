@@ -202,9 +202,10 @@ test('reels accelerate, cross every audible detent once, and settle inside the a
     }
   }
 });
-test('upgrade consumes the selected items in both outcomes and preserves the wallet', () => {
+test('ordinary upgrade consumes the selected items in both outcomes and preserves the wallet', () => {
   const player = initialPlayer(skins), ids = player.inventory.slice(0, 2).map(i => i.uid), target = skins[0];
-  const won = upgrade(player, ids, target, skins, () => 0);
+  const ordinaryWinDraws = [0, .5];
+  const won = upgrade(player, ids, target, skins, () => ordinaryWinDraws.shift()!);
   assert.equal(won.won, true);
   assert.equal(won.state.inventory.length, player.inventory.length - 1);
   assert.equal(won.state.inventory[0].skinId, target.id);

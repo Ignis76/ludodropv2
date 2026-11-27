@@ -4,15 +4,23 @@ import type { Item, MineRound, Skin } from './types';
 import type { Navigate } from './App';
 import { Coin, Empty, SkinCard, money } from './components';
 import { skinById, skins, useStore } from './store';
-import { mineMultiplier, random, round, upgrade, upgradeChance, closestUpgradeTargets, maxUpgradeContribution } from './engine';
+import { GOLD_UPGRADE, mineMultiplier, random, round, upgrade, upgradeChance, upgradeWheelSectors, closestUpgradeTargets, maxUpgradeContribution, type GoldUpgradePayout } from './engine';
 import { startMines, collectMines, revealCell } from './rounds';
 import { isWagerSkin, skinPayoutQuote } from './skin-wagers';
-import { createUpgradeSpinPlayback, sound } from './audio';
+import { createUpgradeSpinPlayback, getAudioVolume, playGoldUpgradeAward, sound } from './audio';
+import { UpgradeCinematic } from './upgrade-cinematic';
 import { useReducedMotion } from './use-reduced-motion';
 import { buildUpgradeSpin, UPGRADE_MARK_DEGREES } from './upgrade-spin';
 
 type GameMode = 'crash' | 'wheel' | 'mines';
 type TargetRequest = { by: 'chance'; value: string } | { by: 'multiple'; value: number };
+type UpgradeAttempt = {
+  inputs: Skin[]; inventory: Item[]; target: Skin; contribution: number; limit: number;
+  landing: number; goldZone: boolean; goldPayout: GoldUpgradePayout | null;
+};
+function formatUpgradePercent(percent: number) {
+  return percent > 0 && percent < .01 ? '<0,01' : money(percent);
+}
 function useSpinPreference(key: string, defaultValue: boolean) {
   const [value, setValue] = useState(() => {
     try {
@@ -66,19 +74,53 @@ export function UpgradePage({ go, initialItemId }: { go: Navigate; initialItemId
   const [creditStake, setCreditStake] = useState(0);
   const [fast, changeFast] = useSpinPreference('ludodrop.upgrade.fast.v1', false);
   const [suspense, changeSuspense] = useSpinPreference('ludodrop.upgrade.suspense.v1', true);
-  const [phase, setPhase] = useState<'idle' | 'rolling' | 'win' | 'lose'>('idle');
-  const [attempt, setAttempt] = useState<{ inputs: Skin[]; inventory: Item[]; target: Skin; contribution: number; limit: number } | null>(null);
+  const [phase, setPhase] = useState<'idle' | 'rolling' | 'cinematic' | 'receiving' | 'win' | 'lose' | 'gold'>('idle');
+  const [attempt, setAttempt] = useState<UpgradeAttempt | null>(null);
+  const [goldAppeared, setGoldAppeared] = useState(false);
   const stage = useRef<HTMLElement | null>(null);
   const needle = useRef<HTMLDivElement>(null);
-  const spin = useRef<{ animation: Animation; playback: ReturnType<typeof createUpgradeSpinPlayback>; finish: () => void } | null>(null);
+  const spin = useRef<{ animation: Animation; duration: number; playback: ReturnType<typeof createUpgradeSpinPlayback>; finish: () => void } | null>(null);
   const dismissResult = useRef<(() => void) | null>(null);
+  const afterFilm = useRef<(() => void) | null>(null);
+  const returnFocusAfterFilm = useRef(false);
   const pickers = useRef<HTMLDivElement>(null);
   const locked = useRef(false);
   const reducedMotion = useReducedMotion();
+  const showingFilm = phase === 'cinematic' || phase === 'receiving';
+  const presenting = phase === 'rolling' || showingFilm;
+  const settled = phase !== 'idle' && !presenting;
+  const prepareGoldReceipt = useCallback(() => {
+    setPhase(current => current === 'cinematic' ? 'receiving' : current);
+  }, []);
+  const finishFilm = useCallback(() => {
+    const complete = afterFilm.current;
+    if (!complete) return;
+    afterFilm.current = null;
+    returnFocusAfterFilm.current = true;
+    complete();
+  }, []);
   useLayoutEffect(() => {
-    if (phase === 'win' || phase === 'lose') locked.current = false;
-  }, [phase]);
-  useEffect(() => { if (reducedMotion) spin.current?.finish(); }, [reducedMotion]);
+    if (!settled) return;
+    locked.current = false;
+    if (returnFocusAfterFilm.current) {
+      stage.current?.querySelector<HTMLButtonElement>('.upgrade-action > button')?.focus({ preventScroll:true });
+      returnFocusAfterFilm.current = false;
+    }
+  }, [settled]);
+  useEffect(() => {
+    const active = spin.current;
+    if (phase !== 'rolling' || !attempt?.goldZone || !active) return;
+    let frame: number;
+    const revealZone = () => {
+      if (Number(active.animation.currentTime) >= active.duration * .24 && !document.hidden) setGoldAppeared(true);
+      else frame = requestAnimationFrame(revealZone);
+    };
+    frame = requestAnimationFrame(revealZone);
+    return () => cancelAnimationFrame(frame);
+  }, [phase, attempt]);
+  useEffect(() => {
+    if (reducedMotion) { spin.current?.finish(); finishFilm(); }
+  }, [reducedMotion, finishFilm]);
   useEffect(() => {
     function syncSpin() {
       const active = spin.current;
@@ -118,12 +160,12 @@ export function UpgradePage({ go, initialItemId }: { go: Navigate; initialItemId
     dismissResult.current?.();
     dismissResult.current = null;
     needle.current?.style.removeProperty('transform');
-    setPhase('idle'); setAttempt(null); setCreditStake(0);
+    setPhase('idle'); setAttempt(null); setCreditStake(0); setGoldAppeared(false);
   }, []);
   const pickedTargetId = pickedTarget?.id;
   const targetCards = useMemo(() => targets.map(({ skin, chance: actual }, index) => (
     <SkinCard key={skin.id} skin={skin} selected={pickedTargetId === skin.id} compact
-      footer={<span className="target-chance" title="Шанс без доплаты">{index === 0 && <Target size={11}/>} {money(actual)}%</span>}
+      footer={<span className="target-chance" title="Шанс без доплаты">{index === 0 && <Target size={11}/>} {formatUpgradePercent(actual)}%</span>}
       onClick={() => { if (!locked.current) { reset(); setTargetId(skin.id); sound('click'); } }}/>
   )), [targets, pickedTargetId, reset]);
   function changeTargetRequest(request: TargetRequest, nextTargetId = '') {
@@ -137,31 +179,50 @@ export function UpgradePage({ go, initialItemId }: { go: Navigate; initialItemId
     const next = choices[Math.floor(random() * choices.length)];
     changeTargetRequest({ by: 'chance', value: String(Math.max(.1, round(next.chance))).replace('.', ',') }, next.skin.id);
   }
-  const sectorDegrees = chance * 360;
   const roll = () => {
     if (locked.current || !target || !chance || !validPercent) return;
     locked.current = true;
     const snapshot = { inputs: selectedSkins, inventory: player.inventory, target, contribution, limit: maxContribution };
     let outcome: ReturnType<typeof upgrade> | undefined;
     if (!update(p => { outcome = upgrade(p, selected, target, skins, random, contribution); return outcome.state; }) || !outcome) { locked.current = false; return; }
-    setAttempt(snapshot); setPhase('rolling'); setBusy(true); sound('start');
+    const { won, landing, goldZone, goldPayout } = outcome;
+    setAttempt({ ...snapshot, landing, goldZone, goldPayout }); setGoldAppeared(false);
+    setPhase('rolling'); setBusy(true); sound('start');
+    if (goldPayout) {
+      const prizeArt = new Image();
+      prizeArt.src = goldPayout.skin.image;
+    }
     if (stage.current && (window.innerWidth <= 760 || stage.current.getBoundingClientRect().top < 0)) {
       stage.current.scrollIntoView({ behavior: fast || reducedMotion ? 'instant' : 'smooth', block: 'start' });
     }
-    const { won } = outcome;
-    const motion = buildUpgradeSpin(chance, won, fast, random, suspense);
+    const motion = buildUpgradeSpin(landing, fast, random, suspense);
     const pointer = needle.current;
+    let finished = false;
     const finish = () => {
-      if (!locked.current || (spin.current && document.hidden)) return;
-      if (pointer) pointer.style.transform = `rotate(${motion.landing % 360}deg)`;
+      if (finished || !locked.current || (spin.current && document.hidden)) return;
+      finished = true;
+      if (pointer) pointer.style.transform = `rotate(${landing}deg)`;
       if (spin.current) {
         spin.current.playback.complete();
       }
       spin.current = null;
-      setPhase(won ? 'win' : 'lose');
-      setSelected([]); setBusy(false);
-      if (!document.hidden) sound(won ? 'win' : 'lose');
-      dismissResult.current = toast(won ? 'Апгрейд удался! Новый предмет в инвентаре' : 'Апгрейд не удался. Можно выбрать новую цель', won ? 'success' : 'error');
+      const showResult = (withSound: boolean) => {
+        setPhase(goldPayout ? 'gold' : won ? 'win' : 'lose');
+        setSelected([]); setBusy(false);
+        if (withSound && !document.hidden) {
+          if (goldPayout) playGoldUpgradeAward();
+          else sound(won ? 'win' : 'lose');
+        }
+        const message = goldPayout ? `Золотой дроп ×${goldPayout.multiplier} · ${goldPayout.skin.weapon} | ${goldPayout.skin.name}` :
+          won ? 'Апгрейд удался! Новый предмет в инвентаре' : 'Апгрейд не удался. Можно выбрать новую цель';
+        dismissResult.current = toast(message, won ? 'success' : 'error');
+      };
+      if (goldPayout && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        afterFilm.current = () => showResult(false);
+        setPhase('cinematic');
+      } else {
+        showResult(true);
+      }
     };
     if (matchMedia('(prefers-reduced-motion: reduce)').matches || !pointer?.animate) {
       finish();
@@ -170,7 +231,7 @@ export function UpgradePage({ go, initialItemId }: { go: Navigate; initialItemId
     try {
       const animation = pointer.animate(motion.keyframes, { duration: motion.duration, easing: 'linear', fill: 'both' });
       const playback = createUpgradeSpinPlayback(animation, motion.tickTimes, motion.duration);
-      spin.current = { animation, playback, finish };
+      spin.current = { animation, duration: motion.duration, playback, finish };
       animation.onfinish = finish;
       if (document.hidden) playback.pause();
       else playback.play();
@@ -178,8 +239,20 @@ export function UpgradePage({ go, initialItemId }: { go: Navigate; initialItemId
       finish();
     }
   };
+  const showGold = attempt?.goldZone && (goldAppeared || showingFilm || settled);
+  const goldPrize = phase === 'gold' || phase === 'receiving' ? attempt?.goldPayout : null;
+  const shownTarget = goldPrize?.skin ?? target;
+  const { goldArc, ordinaryArc } = upgradeWheelSectors(chance, Boolean(showGold));
+  const percentText = formatUpgradePercent(100 * (showGold ? GOLD_UPGRADE.hitChance : chance));
+  const readoutLabel = goldPrize ? 'Золотой дроп' : phase === 'win' ? 'Попадание' : phase === 'lose' ? 'Промах'
+    : showGold ? 'Шанс на золото' : 'Шанс успеха';
+  const spokenResult = goldPrize ? `${readoutLabel} ×${goldPrize.multiplier}` : settled ? readoutLabel : `${readoutLabel} ${percentText}%`;
   return <div className="mode-page upgrade-page">
     <section ref={stage} aria-label="Апгрейд" className={`upgrade-stage chamber-${phase}`}>
+      {presenting && attempt?.goldPayout && !reducedMotion && <UpgradeCinematic
+        active={showingFilm} fast={fast} volume={player.sound ? getAudioVolume() : 0}
+        inputs={attempt.inputs} contribution={attempt.contribution} landing={attempt.landing}
+        target={attempt.target} payout={attempt.goldPayout} onDelivery={prepareGoldReceipt} onFinish={finishFilm}/>}
       <div className={`upgrade-slot source-slot ${inputs[0] ? `rarity-${inputs[0].rarity}` : ''}`}>
         <span className="slot-label"><span className="slot-bulb"/>Твоя ставка<span>{inputs.length}/5</span></span>
         {inputs.length ? <><div className="upgrade-item-art">{inputs.slice(0, 3).map((skin, i) => <img src={skin.image} alt={skin.name} key={i}/>)}</div><span className="upgrade-weapon">{inputs.length === 1 ? inputs[0].weapon : 'Комплект предметов'}</span><h3>{inputs.length === 1 ? inputs[0].name : `Предметов: ${inputs.length}`}</h3><Coin value={total}/></> : <><div className="slot-placeholder"><Plus size={32}/></div><h3>Твои предметы</h3><button className="choose-loadout" onClick={() => {
@@ -189,43 +262,55 @@ export function UpgradePage({ go, initialItemId }: { go: Navigate; initialItemId
         }}>Выбрать предметы</button></>}
       </div>
       <div className="upgrade-dial-column">
-        <div className={`probability-dial ${phase}`} style={{ '--upgrade-mark-step': `${UPGRADE_MARK_DEGREES}deg` } as React.CSSProperties} role="img" aria-label={`Шанс ${(chance * 100).toFixed(2)}%. ${phase === 'win' ? 'Попадание' : phase === 'lose' ? 'Промах' : 'Выделенный сектор обозначает выигрыш'}`}>
+        <div className={`probability-dial ${phase === 'receiving' ? 'gold' : phase}`} style={{ '--upgrade-mark-step': `${UPGRADE_MARK_DEGREES}deg`, '--gold-arc': `${360 * GOLD_UPGRADE.wheelShare}deg` } as React.CSSProperties}
+          role="img" aria-label={`${spokenResult}${showGold ? '. Золотая зона внизу колеса' : ''}`}>
           <div className="probability-ticks"/>
-          <div className="probability-band" style={{ '--upgrade-arc': `${sectorDegrees}deg` } as React.CSSProperties}/>
-          <div className="probability-readout"><span>{phase === 'win' ? 'Попадание' : phase === 'lose' ? 'Промах' : 'Шанс успеха'}</span>
-            <strong>{phase === 'win' ? <Check size={49}/> : phase === 'lose' ? <RotateCcw size={41}/> : <>{(chance * 100).toLocaleString('ru-RU',{maximumFractionDigits:2})}<small>%</small></>}</strong>
+          <div className="probability-band" style={{ '--upgrade-arc': `${ordinaryArc + goldArc}deg` } as React.CSSProperties}/>
+          {showGold && <div className="upgrade-gold-sector" aria-hidden="true"/>}
+          <div className="probability-readout"><span>{readoutLabel}</span>
+            <strong>{goldPrize ? <>×{goldPrize.multiplier}</> : phase === 'win' ? <Check size={49}/> : phase === 'lose' ? <RotateCcw size={41}/> : <>{percentText}<small>%</small></>}</strong>
           </div>
           <div ref={needle} className="probability-needle"><i/></div>
         </div>
-        <div className="probability-legend"><i/>Выигрышный сектор</div>
+        <div className={'probability-legend' + (showGold ? ' gold-legend' : '')} role="status">
+          {showGold ? <><Diamond size={13} aria-hidden="true"/>Золотая зона</> : <><i/>Выигрышный сектор</>}
+        </div>
       </div>
-      <div className={`upgrade-slot target-slot ${target ? `rarity-${target.rarity}` : ''}`}>
-        <span className="slot-label"><span className="slot-bulb"/>Твоя цель{target && total > 0 && <b>×{(target.price / total).toFixed(1)}</b>}</span>
-        {target ? <><div className="upgrade-item-art"><img src={target.image} alt={target.name}/></div><span className="upgrade-weapon">{target.weapon}</span><h3>{target.name}</h3><Coin value={target.price}/></> : <><div className="slot-placeholder"><Target size={34}/></div><h3>На что меняем?</h3><p>Укажи желаемый шанс.<br/>Подберём подходящие предметы.</p></>}
+      <div className={`upgrade-slot target-slot ${shownTarget ? `rarity-${shownTarget.rarity}` : ''}`}>
+        <span className="slot-label"><span className="slot-bulb"/>{goldPrize ? 'Твой выигрыш' : 'Твоя цель'}{shownTarget && total > 0 && <b title={goldPrize && target ? `От цены цели «${target.weapon} | ${target.name}» (${money(target.price)})` : undefined}>×{goldPrize ? goldPrize.multiplier : (shownTarget.price / total).toFixed(1)}</b>}</span>
+        {shownTarget ? <>
+          <div className="upgrade-item-art">
+            <img key={goldPrize ? 'gold-' + shownTarget.id : shownTarget.id} src={shownTarget.image} alt={shownTarget.name}/>
+            {goldPrize && <span className="upgrade-gold-sparks" aria-hidden="true">{Array.from({ length: 12 }, (_, i) =>
+              <i key={i} style={{ '--ray-angle': `${i * 30 + 12}deg`, '--ray-distance': `${39 + (i % 3) * 15}px`, '--ray-delay': `${(i % 4) * 32}ms` } as React.CSSProperties}/>)}</span>}
+          </div>
+          <span className="upgrade-weapon">{shownTarget.weapon}</span><h3>{shownTarget.name}</h3><Coin value={shownTarget.price}/>
+          {goldPrize && goldPrize.remainder > 0 && <span className="upgrade-gold-remainder">+<Coin value={goldPrize.remainder}/> на баланс</span>}
+        </> : <><div className="slot-placeholder"><Target size={34}/></div><h3>На что меняем?</h3><p>Укажи желаемый шанс.<br/>Подберём подходящие предметы.</p></>}
       </div>
       <div className="upgrade-action">
-        {phase === 'win' || phase === 'lose' ? <button className="primary-button" onClick={reset}><RotateCcw size={19}/>Новый апгрейд</button> : <button className="primary-button" onClick={roll} disabled={phase === 'rolling' || !chance || !selected.length || !validPercent}><ArrowUpRight size={21}/>{phase === 'rolling' ? 'Апгрейд в процессе…' : 'Запустить апгрейд'}</button>}
+        {settled ? <button className="primary-button" onClick={reset}><RotateCcw size={19}/>Новый апгрейд</button> : <button className="primary-button" onClick={roll} disabled={presenting || !chance || !selected.length || !validPercent}><ArrowUpRight size={21}/>{presenting ? 'Апгрейд в процессе…' : 'Запустить апгрейд'}</button>}
         <div className="upgrade-spin-options" role="group" aria-label="Настройки прокрутки">
           <label className="upgrade-spin-switch" title="После быстрого вращения стрелка плавно проходит последние деления. В обычном режиме торможение начинается раньше.">
-            <input id="upgrade-suspense" type="checkbox" role="switch" checked={suspense} disabled={phase === 'rolling'} onChange={e => changeSuspense(e.currentTarget.checked)}/>
+            <input id="upgrade-suspense" type="checkbox" role="switch" checked={suspense} disabled={presenting} onChange={e => changeSuspense(e.currentTarget.checked)}/>
             Азартная прокрутка
           </label>
           <label className="upgrade-spin-switch" title="Ускорить анимацию апгрейда">
-            <input id="upgrade-fast" type="checkbox" role="switch" checked={fast} disabled={phase === 'rolling'} onChange={e => changeFast(e.currentTarget.checked)}/>
+            <input id="upgrade-fast" type="checkbox" role="switch" checked={fast} disabled={presenting} onChange={e => changeFast(e.currentTarget.checked)}/>
             Быстро
           </label>
         </div>
       </div>
     </section>
     <div className="two-pickers" ref={pickers}>
-      <InventoryPicker selected={selected} inventory={phase === 'rolling' ? attempt?.inventory : undefined} disabled={phase === 'rolling'} max={5} go={go} onToggle={i => { reset(); setTargetId(''); setSelected(prev => prev.includes(i.uid) ? prev.filter(id => id !== i.uid) : prev.length < 5 ? [...prev, i.uid] : prev); }}/>
+      <InventoryPicker selected={selected} inventory={presenting ? attempt?.inventory : undefined} disabled={presenting} max={5} go={go} onToggle={i => { reset(); setTargetId(''); setSelected(prev => prev.includes(i.uid) ? prev.filter(id => id !== i.uid) : prev.length < 5 ? [...prev, i.uid] : prev); }}/>
       <section className="picker-panel target-panel">
         <div className="picker-title upgrade-target-toolbar">
           <div className="upgrade-target-title">
             <h3>Подбор по шансу</h3>
             <label className="upgrade-custom-chance" title="Свой процент">
               <input id="desired-chance" aria-label="Желаемый шанс" inputMode="decimal" autoComplete="off" value={requested}
-                onChange={e => changeTargetRequest({ by: 'chance', value: e.target.value })} disabled={phase === 'rolling'}
+                onChange={e => changeTargetRequest({ by: 'chance', value: e.target.value })} disabled={presenting}
                 aria-invalid={!validPercent} aria-describedby={!validPercent ? 'upgrade-chance-error' : undefined}/><span>%</span>
             </label>
           </div>
@@ -250,19 +335,19 @@ export function UpgradePage({ go, initialItemId }: { go: Navigate; initialItemId
               </div>
             </div>
           </div>
-          <label className="search-field"><Search size={15}/><input placeholder="Найти скин" aria-label="Поиск цели апгрейда" value={search} disabled={phase === 'rolling'} onChange={e => { reset(); setTargetId(''); setSearch(e.target.value); }}/></label>
+          <label className="search-field"><Search size={15}/><input placeholder="Найти скин" aria-label="Поиск цели апгрейда" value={search} disabled={presenting} onChange={e => { reset(); setTargetId(''); setSearch(e.target.value); }}/></label>
           <div className="upgrade-target-presets" role="group" aria-label="Быстрый подбор цели">
-            {[2, 5, 10].map(multiple => <button key={multiple} type="button" disabled={phase === 'rolling'}
+            {[2, 5, 10].map(multiple => <button key={multiple} type="button" disabled={presenting}
               aria-pressed={targetRequest.by === 'multiple' && targetRequest.value === multiple} title={`Цена цели ≈ ${multiple} × стоимость ставки`}
               onClick={() => changeTargetRequest({ by: 'multiple', value: multiple })}>×{multiple}</button>)}
-            {[30, 50, 75].map(n => <button key={n} type="button" disabled={phase === 'rolling'}
+            {[30, 50, 75].map(n => <button key={n} type="button" disabled={presenting}
               aria-pressed={targetRequest.by === 'chance' && percent === n} title={`Подобрать цель с шансом около ${n}%`}
               onClick={() => changeTargetRequest({ by: 'chance', value: String(n) })}>{n}%</button>)}
-            <button type="button" aria-label="Случайная цель" title="Случайная цель" disabled={phase === 'rolling' || !selectedSkins.length || targets.length < 2} onClick={shuffleTarget}><Shuffle size={17} aria-hidden="true"/></button>
+            <button type="button" aria-label="Случайная цель" title="Случайная цель" disabled={presenting || !selectedSkins.length || targets.length < 2} onClick={shuffleTarget}><Shuffle size={17} aria-hidden="true"/></button>
           </div>
         </div>
         {!validPercent && <p className="upgrade-chance-error" id="upgrade-chance-error" role="status">Введи шанс от 0,1% до 75%.</p>}
-        <div className="picker-grid" inert={phase === 'rolling'}>{targetCards}</div>
+        <div className="picker-grid" inert={presenting}>{targetCards}</div>
         {validPercent && !targets.length && <Empty title={total ? 'Цели не найдены' : 'Сначала выбери предмет'} text={total ? 'Измени запрос или выбери другую ставку.' : 'Выбери скин из своего инвентаря для подбора цели.'}/>}
       </section>
     </div>

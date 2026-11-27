@@ -6,7 +6,7 @@ import { useStore } from './store';
 import { activateOfficePromo, normalizePromoCode, OFFICE_PROMO_CODE, officePromoStatus, topUpWallet, WALLET_AMOUNTS, walletBonus } from './wallet-offer';
 import './wallet.css';
 
-export function WalletDialog({ initialCode = '', onClose }: { initialCode?: string; onClose: () => void }) {
+export function WalletDialog({ balance, initialCode = '', onClose }: { balance: number; initialCode?: string; onClose: () => void }) {
   const { player, walletUpdate, toast } = useStore();
   const [code, setCode] = useState(initialCode);
   const [invalid, setInvalid] = useState(false);
@@ -54,7 +54,7 @@ export function WalletDialog({ initialCode = '', onClose }: { initialCode?: stri
   };
 
   return <Modal icon={<Wallet/>} title="Виртуальный баланс" onClose={onClose}>
-    <div className="wallet-total"><span>Доступно кредитов</span><Coin value={player.balance}/></div>
+    <div className="wallet-total"><span>Доступно кредитов</span><Coin value={balance}/></div>
     {status === 'available' ? <form className="wallet-promo" onSubmit={e => { e.preventDefault(); applyCode(); }}>
       <label htmlFor="wallet-promo-code">Промокод</label>
       <div className="wallet-promo-input">

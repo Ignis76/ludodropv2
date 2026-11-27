@@ -3,9 +3,9 @@ import test from 'node:test';
 import { renderUpgradeTicks } from '../src/audio.ts';
 import { buildUpgradeSpin, UPGRADE_MARK_DEGREES } from '../src/upgrade-spin.ts';
 
-function spin(chance: number, won: boolean, fast: boolean, samples: number[], suspense = true) {
+function spin(target: number, fast: boolean, samples: number[], suspense = true) {
   let i = 0;
-  const result = buildUpgradeSpin(chance, won, fast, () => samples[i++], suspense);
+  const result = buildUpgradeSpin(target, fast, () => samples[i++], suspense);
   assert.equal(i, samples.length);
   return result;
 }
@@ -32,9 +32,9 @@ function easedTravel(time: number, easing: string) {
 
 test('suspense conceals the result through launch and cruise in both speeds', () => {
   for (const fast of [false, true]) {
-    const samples = [.16, .72, .22, .95, .08];
-    const win = spin(.10, true, fast, samples);
-    const lose = spin(.75, false, fast, samples);
+    const samples = [.16, .72, .95, .08];
+    const win = spin(180, fast, samples);
+    const lose = spin(17, fast, samples);
     assert.equal(win.duration, lose.duration);
     assert.ok(fast ? win.duration >= 900 && win.duration <= 1050 : win.duration >= 1450 && win.duration <= 1650);
     assert.deepEqual(win.keyframes.slice(0, 2), lose.keyframes.slice(0, 2));
@@ -42,33 +42,28 @@ test('suspense conceals the result through launch and cruise in both speeds', ()
     assert.equal(win.keyframes[2].transform, lose.keyframes[2].transform);
     const earliestBrake = fast ? .16 : .18;
     assert.ok(win.keyframes[2].offset >= earliestBrake && win.keyframes[2].offset <= earliestBrake + .035);
-    const alternate = spin(.10, true, fast, [.92, .15, .22, .02, .81]);
+    const alternate = spin(180, fast, [.92, .15, .02, .81]);
     assert.notEqual(win.keyframes[2].transform, alternate.keyframes[2].transform);
     assert.notEqual(win.keyframes[1].transform, alternate.keyframes[1].transform);
   }
 });
 
-test('both modes land across the entire result sector centered on six o’clock', () => {
-  for (const suspense of [true, false]) for (const chance of [0, .001, .1, .75, 1]) for (const won of [false, true]) {
-    const width = 360 * (won ? chance : 1 - chance);
-    if (!width) continue;
-    const start = 180 - 180 * chance + (won ? 0 : 360 * chance);
-    const samples = [0, .5, .999999].map(draw => {
-      const draws = suspense ? [.3, .8, draw, .4, .7] : [.3, .8, draw];
-      const { landing, keyframes } = spin(chance, won, false, draws, suspense);
+test('both modes land at the settled wheel angle, including either edge of the gold zone', () => {
+  for (const suspense of [true, false]) for (const fast of [true, false]) {
+    for (const target of [0, .001, 45, 170.999, 171, 180, 188.999, 189, 315, 359.999]) {
+      const draws = suspense ? [.3, .8, .4, .7] : [.3, .8];
+      const { landing, keyframes } = spin(target, fast, draws, suspense);
       almost(angle(keyframes.at(-1)!.transform), landing);
-      return ((landing - start) % 360 + 360) % 360 / width;
-    });
-    assert.ok(samples[0] > 0 && samples[0] < .1);
-    almost(samples[1], .5);
-    assert.ok(samples[2] > .9 && samples[2] < 1);
+      almost(landing % 360, target);
+    }
   }
 });
 
 test('suspense spins stay forward and brake monotonically with continuous speed at each join', () => {
-  for (const fast of [false, true]) for (const won of [false, true]) for (let i = 0; i < 53; i++) {
-    const samples = [3, 13, 19, 29, 43].map(step => (i * step % 53) / 53);
-    const { duration, keyframes: [launch, cruise, brake, approach, stop] } = spin(.1, won, fast, samples);
+  for (const fast of [false, true]) for (const offset of [0, 180]) for (let i = 0; i < 53; i++) {
+    const samples = [3, 13, 29, 43].map(step => (i * step % 53) / 53);
+    const target = (offset + 360 * ((i * 19) % 53) / 53) % 360;
+    const { duration, keyframes: [launch, cruise, brake, approach, stop] } = spin(target, fast, samples);
     const cruiseSpeed = (angle(brake.transform) - angle(cruise.transform)) / (brake.offset - cruise.offset);
     const [ax, ay, bx, by] = bezier(launch.easing!);
     const rampSpeed = angle(cruise.transform) / cruise.offset;
@@ -108,8 +103,8 @@ test('suspense spins stay forward and brake monotonically with continuous speed 
 });
 
 test('classic spins start braking early and visibly settle toward the real result', () => {
-  for (const fast of [false, true]) for (const won of [true, false]) for (const draw of [0, .5, .99999]) {
-    const { duration, keyframes: [launch, brake, stop] } = spin(.1, won, fast, [draw, draw, draw], false);
+  for (const fast of [false, true]) for (const target of [0, 60, 180, 359.99]) for (const draw of [0, .5, .99999]) {
+    const { duration, keyframes: [launch, brake, stop] } = spin(target, fast, [draw, draw], false);
     assert.ok(fast ? duration >= 900 && duration <= 1050 : duration >= 1450 && duration <= 1650);
     assert.ok(brake.offset >= .035 && brake.offset <= .065);
     const launchAngle = angle(brake.transform);
@@ -139,7 +134,7 @@ test('classic spins start braking early and visibly settle toward the real resul
 test('the pointer crosses each of the twelve major marks once, including during its final approach', () => {
   assert.equal(360 / UPGRADE_MARK_DEGREES, 12);
   for (const fast of [true, false]) for (const suspense of [true, false]) {
-    const { duration, keyframes, tickTimes, landing } = buildUpgradeSpin(.22, false, fast, () => .62, suspense);
+    const { duration, keyframes, tickTimes, landing } = buildUpgradeSpin(48, fast, () => .62, suspense);
     assert.equal(tickTimes.length, Math.floor(landing / UPGRADE_MARK_DEGREES));
     tickTimes.forEach((ms, i) => {
       assert.ok(ms > (tickTimes[i - 1] ?? 0) && ms <= duration);
@@ -167,7 +162,7 @@ test('rendered audio peaks at every mark and only plays a landing tick when the 
   for (let ch = 0; ch < cue.numberOfChannels; ch++) cue.getChannelData(ch)[Math.round(.0985 * hz)] = 1;
 
   for (const draw of [.5, .42]) for (const fast of [true, false]) for (const suspense of [true, false]) {
-    const { tickTimes, duration, landing } = buildUpgradeSpin(.3, true, fast, () => draw, suspense);
+    const { tickTimes, duration, landing } = buildUpgradeSpin(360 * draw, fast, () => draw, suspense);
     const samples = renderUpgradeTicks(context, cue, tickTimes, duration);
     const expected = tickTimes.map(t => Math.round(t * hz / 1000));
     assert.equal(landing % UPGRADE_MARK_DEGREES === 0, draw === .5);

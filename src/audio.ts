@@ -23,7 +23,8 @@ export function setAudioVolume(value: number) {
   applyLevel();
   try { localStorage.setItem(VOLUME_KEY, String(volume)); } catch { /* Volume still works for this session. */ }
 }
-const FILES = { tick: 'tick.wav', latch: 'unlock.wav', blue: 'reveal.wav', purple: 'reveal-purple.wav', pink: 'reveal-pink.wav', rare: 'rare.wav' };
+const caseFiles = { tick: 'tick.wav', latch: 'unlock.wav', blue: 'reveal.wav', purple: 'reveal-purple.wav', pink: 'reveal-pink.wav', rare: 'rare.wav' };
+const FILES = { ...caseFiles, upgradeAward: 'upgrade-award.m4a' };
 type CaseSound = keyof typeof FILES;
 const buffers = new Map<CaseSound, AudioBuffer>();
 const pending = new Map<CaseSound, Promise<AudioBuffer>>();
@@ -63,7 +64,7 @@ async function loadCaseSound(name: CaseSound): Promise<AudioBuffer> {
   return request;
 }
 export async function preloadCaseSounds(): Promise<boolean> {
-  const sounds = Object.keys(FILES) as CaseSound[];
+  const sounds = Object.keys(caseFiles) as CaseSound[];
   const loaded = await Promise.allSettled(sounds.map(loadCaseSound));
   return loaded.every(result => result.status === 'fulfilled');
 }
@@ -105,6 +106,15 @@ function sample(name: CaseSound, time: number, volume = 1, speed = 1) {
   return source;
 }
 function stopSources(sources: AudioScheduledSourceNode[]) { return () => { sources.forEach(source => { try { source.stop(); } catch { /* Already ended. */ } }); }; }
+export function playGoldUpgradeAward() {
+  if (!enabled || !volume || document.hidden) return;
+  const requested = performance.now();
+  void loadCaseSound('upgradeAward').then(() => {
+    if (enabled && volume && !document.hidden && performance.now() - requested < 900) {
+      sample('upgradeAward', context().currentTime);
+    }
+  }).catch(() => {});
+}
 export function playCaseOpening() {
   try {
     const audio = context(); void audio.resume().catch(() => {}); void preloadCaseSounds();

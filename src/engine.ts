@@ -96,6 +96,33 @@ export function sellItems(state: Player, ids: string[], skins: Skin[]): Player {
 }
 const UPGRADE_RETURN_PERCENT = 90;
 const MAX_UPGRADE_CHANCE_PERCENT = 75;
+export const GOLD_UPGRADE = { frequency: 1 / 50, wheelShare: .05, hitChance: .6, minMultiplier: 3, maxMultiplier: 6 } as const;
+
+export function upgradeWheelSectors(chance: number, goldZone: boolean) {
+  const goldArc = goldZone ? 360 * GOLD_UPGRADE.wheelShare : 0;
+  const ordinaryArc = (360 - goldArc) * chance;
+  return { goldArc, ordinaryArc, start: 180 - (goldArc + ordinaryArc) / 2 };
+}
+
+export function drawUpgradeWheel(chance: number, rng: () => number) {
+  const turn = rng();
+  const goldZone = rng() < GOLD_UPGRADE.frequency;
+  const goldHit = goldZone && rng() < GOLD_UPGRADE.hitChance;
+  const { goldArc, start } = upgradeWheelSectors(chance, goldZone);
+  // Outside a jackpot, map the same ordinary draw onto the wheel with the gold slot cut out.
+  const landing = goldHit ? 180 - goldArc / 2 + turn * goldArc
+    : (start + turn * (360 - goldArc) + (turn >= chance / 2 ? goldArc : 0)) % 360;
+  return { landing, goldZone, goldHit, won: goldHit || turn < chance };
+}
+
+function goldUpgradePayout(goal: Skin, skins: Skin[], rng: () => number) {
+  const { minMultiplier, maxMultiplier } = GOLD_UPGRADE;
+  const multiplier = minMultiplier + Math.floor(rng() * (maxMultiplier - minMultiplier + 1));
+  const quote = skinPayoutQuote(goal.price, multiplier, skins, { allowCollectibleFallback: true });
+  return { ...quote, multiplier };
+}
+export type GoldUpgradePayout = ReturnType<typeof goldUpgradePayout>;
+
 export function upgradeChance(input: number, target: number) {
   return target > input && input > 0 ? Math.min(MAX_UPGRADE_CHANCE_PERCENT / 100, input / target * (UPGRADE_RETURN_PERCENT / 100)) : 0;
 }
@@ -150,14 +177,18 @@ export function upgrade(state: Player, ids: string[], target: Skin, skins: Skin[
       contribution > maxUpgradeContribution(total, goal.price, state.balance)) {
     throw new Error('Проверь сумму с баланса для выбранной цели');
   }
-  const chance = upgradeChance(round(total + contribution), goal.price);
+  const stake = round(total + contribution);
+  const chance = upgradeChance(stake, goal.price);
   if (!chance) throw new Error('Цель должна быть дороже выбранных предметов');
-  const won = rng() < chance;
-  const reward = won ? makeItem(goal) : null;
+  const wheel = drawUpgradeWheel(chance, rng);
+  const goldPayout = wheel.goldHit ? goldUpgradePayout(goal, skins, rng) : null;
+  const reward = wheel.won ? makeItem(goldPayout?.skin ?? goal) : null;
   const inventory = state.inventory.filter(i => !ids.includes(i.uid));
   if (reward) inventory.unshift(reward);
-  const title = won ? `Успешный апгрейд: ${goal.weapon}` : 'Апгрейд не удался';
-  return { state: record({ ...state, inventory, balance: round(state.balance - contribution) }, title, contribution ? -contribution : 0), won, reward };
+  const change = round((goldPayout?.remainder ?? 0) - contribution);
+  const title = goldPayout ? `Золотой апгрейд ×${goldPayout.multiplier} · ${goldPayout.skin.weapon} | ${goldPayout.skin.name}` :
+    wheel.won ? `Успешный апгрейд: ${goal.weapon}` : 'Апгрейд не удался';
+  return { ...wheel, reward, goldPayout, state: record({ ...state, inventory, balance: round(state.balance + change) }, title, change) };
 }
 export function contract(state: Player, ids: string[], skins: Skin[], rng = random) {
   if (ids.length < 3 || ids.length > 10) throw new Error('Для контракта нужно от 3 до 10 предметов');
